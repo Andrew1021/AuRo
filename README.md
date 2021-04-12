@@ -1,3 +1,3 @@
 # Autonome Roboter
 
-Repository for Execises in MSI-AS Lecture 'Autonome Roboter' SoSe 21
+Repository for exercises in MSI-AS Lecture 'Autonome Roboter' SoSe 21
