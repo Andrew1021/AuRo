@@ -51,20 +51,23 @@ roslaunch exercise_1 exercise_1.launch
 ```bash
 .
 ├── AuRo.repos                      # file with required repositories
-├── AuRo                            # Metapackage contains:
+├── exercise_1                      # Metapackage contains: ROS-Package for exercise 1
+|   ├── launch                      # Folder for launch files
+│   │   └── exercise_1.launch       # launch file for exercise 1
+│   ├── images                      # Images for exercise 2
 │   ├── CMakeLists.txt              # CMakeList.txt (don't touch)
-│   ├── images                      # Images for every exercise
-│   │   ├── ...
 │   └── package.xml                 # Package.xml (don't touch)
-├── exercise_1                      # ROS-Package for exercise 1
-│   ├── CMakeLists.txt
-│   ├── launch
-│   │   └── exercise_one.launch
-│   └── package.xml
-├── exercise_2                       # ROS-Package for exercise 2
-│   ├── CMakeLists.txt
-│   ├── launch
-│   │   └── exercise_2.launch
-│   └── package.xml
+├── exercise_2                      # Metapackage contains: ROS-Package for exercise 2
+|   ├── config                      # Folder for configuration files
+|   ├── include                     # Folder for include files
+│   │   └── exercise_2              # Folder for include files for exercise 2
+|   ├── launch                      # Folder for launch files
+│   │   └── exercise_2.launch       # launch file for exercise 2
+|   ├── src                         # Folder for source files
+|   ├── test                        # Folder for tests
+│   │   └── Unit                    # Folder for unit tests for exercise 2
+│   ├── images                      # Images for exercise 2
+│   ├── CMakeLists.txt              # CMakeList.txt (don't touch)
+│   └── package.xml                 # Package.xml (don't touch)
 └── README.md
 ```
