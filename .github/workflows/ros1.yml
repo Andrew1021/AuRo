@@ -1,0 +1,64 @@
+# This is a basic workflow to help you get started with Actions
+
+name: ROS1 Package
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow build a ROS 1 workspace
+  ROS1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ros-tooling/setup-ros@v0.1
+        # log id
+        id: action_ros_ci_step
+        with:
+          required-ros-distributions: melodic
+      - uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          package-name: exercise_2
+          # Use with private repos
+          import-token: ${{ secrets.REPO_TOKEN }}
+          target-ros1-distro: melodic
+          
+#           # Use a colcon defaults.yaml file
+#           colcon-defaults: |
+#           {
+#             "build": {
+#               "cmake-args": ["-DMY_CUSTOM_OPTION=ON],
+#               # Generate and process code coverage data
+#               "mixin": ["coverage-gcc"],
+#             }
+#           }
+#           # If possible, pin the repository in the workflow to a specific commit to avoid
+#           # changes in colcon-mixin-repository from breaking your tests.
+#           colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/1ddb69bedfd1f04c2f000e95452f7c24a4d6176b/index.yaml
+          
+#       - uses: codecov/codecov-action@v1.2.1
+#         with:
+#           token: ${{ secrets.CODECOV_TOKEN }}  # only needed for private repos
+#           files: ros_ws/lcov/total_coverage.info,ros_ws/coveragepy/.coverage
+#           flags: unittests
+#           name: codecov-umbrella
+          
+#         # You will also need to add a codecov.yml configuration file (at the root of your repo):
+#         fixes:
+#         # For each package in your repo
+#         - "ros_ws/src/*/my_repo/my_package/::"
+        
+#       # Store colcon logs as build artifacts
+#       - uses: actions/upload-artifact@v1
+#         with:
+#           name: colcon-logs
+#           path: ${{ steps.action_ros_ci_step.outputs.ros-workspace-directory-name }}/log
+#         if: always() # upload the logs even when the build fails
