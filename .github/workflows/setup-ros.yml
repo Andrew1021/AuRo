@@ -15,53 +15,13 @@ jobs:
   # Ubuntu requires its own separate workflow as additional configuration is required for Docker      
   test_docker: # On Linux, iterates on all ROS 1 distributions.
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ros_distribution:
-          - kinetic
-          - melodic
-          - noetic
-
-        # Define the Docker image(s) associated with each ROS distribution.
-        # The include syntax allows additional variables to be defined, like
-        # docker_image in this case. See documentation:
-        # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-configurations-in-a-matrix-build
-        #
-        # Platforms are defined in REP 3, and REP 2000:
-        # https://ros.org/reps/rep-0003.html
-        # https://ros.org/reps/rep-2000.html
-        include:
-          # Kinetic Kame (May 2016 - May 2021)
-          - docker_image: ubuntu
-            ros_distribution: kinetic
-            # Setting ros_version is helpful to customize the workflow
-            # depending on whether a ROS 1, or ROS 2 is being tested.
-            # See 'if: ros_version ==' below for an example.
-            ros_version: 1
-
-          # Melodic Morenia (May 2018 - May 2023)
-          - docker_image: ubuntu
-            ros_distribution: melodic
-            ros_version: 1
-
-          # Noetic Ninjemys (May 2020 - May 2025)
-          - docker_image: ubuntu
-            ros_distribution: noetic
-            ros_version: 1
-
-    container:
-      image: ${{ matrix.docker_image }}
     steps:
-      - name: Setup ROS Environment
-        uses: ros-tooling/setup-ros@0.0.25
+      - uses: ros-tooling/setup-ros@v0.1
         with:
-          import-token: ${{ secrets.REPO_TOKEN }}        
-          required-ros-distributions: ${{ matrix.ros_distribution }}
-      - name: Build and Test ROS1 packages
-        if: ${{ matrix.ros_version == 1 }}
-        uses: ros-tooling/action-ros-ci@0.1.0
+          required-ros-distributions: melodic
+      - uses: ros-tooling/action-ros-ci@v0.2
         with:
           package-name: exercise_1 exercise_2
-          import-token: ${{ secrets.REPO_TOKEN }}
-          target-ros1-distro: ${{ matrix.ros_distribution }}
+          target-ros1-distro: melodic
           vcs-repo-file-url: "https://github.com/Andrew1021/AuRo/raw/main/AuRo.repos"
+
