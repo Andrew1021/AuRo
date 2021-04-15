@@ -32,7 +32,7 @@ jobs:
         # https://ros.org/reps/rep-2000.html
         include:
           # Kinetic Kame (May 2016 - May 2021)
-          - docker_image: ubuntu:xenial
+          - docker_image: ubuntu
             ros_distribution: kinetic
             # Setting ros_version is helpful to customize the workflow
             # depending on whether a ROS 1, or ROS 2 is being tested.
@@ -40,12 +40,12 @@ jobs:
             ros_version: 1
 
           # Melodic Morenia (May 2018 - May 2023)
-          - docker_image: ubuntu:bionic
+          - docker_image: ubuntu
             ros_distribution: melodic
             ros_version: 1
 
           # Noetic Ninjemys (May 2020 - May 2025)
-          - docker_image: ubuntu:focal
+          - docker_image: ubuntu
             ros_distribution: noetic
             ros_version: 1
 
