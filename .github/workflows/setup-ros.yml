@@ -12,21 +12,7 @@ on:
 
 # Setting up the worker, and installing system dependencies on all OSes
 jobs:
-  # Ubuntu requires its own separate workflow as additional configuration is required for Docker
-  build_docker:
-    runs-on: ubuntu-latest
-    container:
-      image: ubuntu:bionic
-    steps:
-      # Setting up the worker, installing system dependencies, and ROS (Linux)
-      - name: Setup ROS Environment
-      - uses: ros-tooling/setup-ros@0.0.25
-        with:
-          required-ros-distributions: kinetic melodic noetic
-      - run: "source /opt/ros/kinetic/setup.bash && ros1 run --help"
-      - run: "source /opt/ros/melodic/setup.bash && rosnode --help"
-      - run: "source /opt/ros/melodic/setup.bash && noetic --help"
-      
+  # Ubuntu requires its own separate workflow as additional configuration is required for Docker      
   test_docker: # On Linux, iterates on all ROS 1 distributions.
     runs-on: ubuntu-latest
     strategy:
@@ -66,11 +52,11 @@ jobs:
     container:
       image: ${{ matrix.docker_image }}
     steps:
-      - name: setup ROS environment
+      - name: Setup ROS Environment
         uses: ros-tooling/setup-ros@0.0.25
         with:
           required-ros-distributions: ${{ matrix.ros_distribution }}
-      - name: build and test ROS1
+      - name: Build and Test ROS1 packages
         if: ${{ matrix.ros_version == 1 }}
         uses: ros-tooling/action-ros-ci@0.1.0
         with:
