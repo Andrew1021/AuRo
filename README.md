@@ -2,7 +2,7 @@
 
 Repository for exercises in MSI-AS Lecture 'Autonome Roboter' SoSe 21
 
-[![GitHub Action Status](https://github.com/Andrew1021/AuRo/workflows/Test%20setup-ros/badge.svg)](https://github.com/Andrew1021/AuRo)
+[![GitHub Action Status](https://github.com/Andrew1021/AuRo/workflows/Setup%20ROS%20environment/badge.svg)](https://github.com/Andrew1021/AuRo)
 <!--- [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=ros-tooling/action-ros-ci)](https://dependabot.com) --->
 <!--- [![codecov](https://codecov.io/gh/ros-tooling/action-ros-ci/branch/master/graph/badge.svg)](https://codecov.io/gh/ros-tooling/action-ros-ci) --->
 
