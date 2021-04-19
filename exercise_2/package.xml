@@ -17,7 +17,7 @@
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
-  <url type="website">https://github.com/Andrew1021/AuRo</>
+  <url type="website">https://github.com/Andrew1021/AuRo</url>
   <url type="repository">https://github.com/Andrew1021/AuRo/tree/main/exercise_2</url>
   <url type="bugtracker">https://github.com/Andrew1021/AuRo/issues</url>
 
