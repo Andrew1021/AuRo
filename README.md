@@ -54,24 +54,32 @@ roslaunch exercise_1 exercise_1.launch
 
 ```bash
 .
-├── AuRo.repos                      # file with required repositories
+├── github                          # Metapackage contains: ROS-Package for exercise 1
+|   ├── workflows                   # Folder for launch files
+|   └── setup-ros.yml               # launch file for exercise 1
 ├── exercise_1                      # Metapackage contains: ROS-Package for exercise 1
+│   ├── images                      # Images for exercise 2
 |   ├── launch                      # Folder for launch files
 │   │   └── exercise_1.launch       # launch file for exercise 1
-│   ├── images                      # Images for exercise 2
 │   ├── CMakeLists.txt              # CMakeList.txt (don't touch)
 │   └── package.xml                 # Package.xml (don't touch)
-├── exercise_2                      # Metapackage contains: ROS-Package for exercise 2
-|   ├── config                      # Folder for configuration files
-|   ├── include                     # Folder for include files
-│   │   └── exercise_2              # Folder for include files for exercise 2
-|   ├── launch                      # Folder for launch files
-│   │   └── exercise_2.launch       # launch file for exercise 2
-|   ├── src                         # Folder for source files
-|   ├── test                        # Folder for tests
-│   │   └── Unit                    # Folder for unit tests for exercise 2
-│   ├── images                      # Images for exercise 2
-│   ├── CMakeLists.txt              # CMakeList.txt (don't touch)
-│   └── package.xml                 # Package.xml (don't touch)
-└── README.md
+├── husky_highlevel_controller                  # Metapackage contains: ROS-Package for exercise 2
+|   ├── config                                  # Folder for configuration files
+|   ├── include                                 # Folder for include files
+│   │   └── husky_highlevel_controller          # Folder for include files for exercise 2
+│   │       └── husky_highlevel_controller.hpp  # header file for exercise 2
+|   ├── launch                                  # Folder for launch files
+│   │   └── husky_highlevel_controller.launch   # launch file for exercise 2
+|   ├── src                                     # Folder for source files
+│   │   └── husky_highlevel_controller.cpp      # source file for exercise 2
+|   ├── test                                    # Folder for tests
+│   │   └── unit                                # Folder for unit tests for exercise 2
+│   ├── images                                  # Images for exercise 2
+│   ├── CMakeLists.txt                          # CMakeList.txt (don't touch)
+│   └── package.xml                             # Package.xml (don't touch)
+├── gitignore                       # ignore list for commit files
+├── AuRo.repos                      # file with required repositories
+├── LICENSE                         # license for code in repository
+├── README.md                       # file with repository decription
+└── install.sh                      # install.sh for ros1 environment
 ```
