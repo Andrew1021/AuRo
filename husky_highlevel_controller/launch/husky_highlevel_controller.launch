@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!--
+Software License Agreement (BSD)
+
+\file      exercise_1.launch
+\authors   Andreas Roth <an721rot@htwg-konstanz.de.com>, Sebastian Hofmaier <sebastian.hofmaier@htwg-konstanz.de>
+\copyright Copyright (c) 2021, HTWG Konstanz, All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that
+the following conditions are met:
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and the
+   following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+   following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Neither the name of Clearpath Robotics nor the names of its contributors may be used to endorse or promote
+   products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WAR-
+RANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, IN-
+DIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<launch>
+
+  <arg name="use_sim_time" default="true"/>
+  <arg name="world_name" default="worlds/empty.world"/>
+  <arg name="debug" default="false"/>
+  <arg name="physics" default="ode"/>
+  
+  <group if="$(arg use_sim_time)">
+  	<param name="/use_sim_time" value="true"/>
+  </group>
+
+  <!-- Launch Gazebo and Husky with Empty World -->
+  <group if="$(eval arg ('world_name') == worlds/empty.world)">
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+      <arg name="world_name" value="$(arg world_name)"/> <!-- world_name is wrt GAZEBO_RESOURCE_PATH environment variable -->
+      <arg name="paused" value="false"/>
+      <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+      <arg name="gui" value="true"/>
+      <arg name="headless" value="false"/>
+      <arg name="debug" value="$(arg debug)"/>
+      <arg name="physics" value="$(arg physics)"/>
+    </include>
+  </group>
+
+  <!-- Launch Gazebo and Husky with Robocup14 World -->
+  <group if="$(eval arg ('world_name') == worlds/robocup14_spl_field.world)">
+    <include file="$(find gazebo_ros)/launch/robocup14_spl_field_world.launch">
+      <arg name="world_name" value="$(arg world_name)"/> <!-- world_name is wrt GAZEBO_RESOURCE_PATH environment variable -->
+      <arg name="paused" value="false"/>
+      <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+      <arg name="gui" value="true"/>
+      <arg name="headless" value="false"/>
+      <arg name="debug" value="$(arg debug)"/>
+      <arg name="physics" value="$(arg physics)"/>
+    </include>
+  </group>
+
+  <!-- Launch Husky/Gazebo Laser and Realsense -->
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(optenv HUSKY_LMS1XX_ENABLED 1)"/>
+    <arg name="realsense_enabled" value="$(optenv HUSKY_REALSENSE_ENABLED 0)"/>
+  </include>
+
+  <!-- Launch Joy Teleop Keyboard Node -->
+  <node name="teleop_twist_keyboard" pkg="teleop_twist_joy" type="teleop_twist_keyboard.py" output="screen"/>
+
+  <node name="husky_highlevel_controller" pkg="husky_highlevel_controller" type="husky_highlevel_controller.cpp" output="screen">
+    <rosparam command"load" file="$(find husky_highlevel_controller)/config/config.yaml"/>
+  </node>
+
+  <!-- Variable for -->
+  <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${time}]: [${message}]"/>
+  
+</launch>

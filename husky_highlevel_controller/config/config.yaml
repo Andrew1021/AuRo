@@ -1,0 +1,7 @@
+camera:
+  left:
+    name: left_camera
+    exposure: 1
+  right:
+    name: right_camera
+    exposure: 1.1
