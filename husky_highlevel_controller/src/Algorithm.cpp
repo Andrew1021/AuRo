@@ -1,39 +1,66 @@
 #include "husky_highlevel_controller/Algorithm.hpp"
 
-#include <utility>
+namespace husky_highlevel_controller 
+{    
+    Algorithm::Algorithm() {}
 
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/min.hpp>
-#include <boost/accumulators/statistics/count.hpp>
+    /*!
+    * Destructor.
+    */
+    Algorithm::~Algorithm() = default;
 
-namespace listener_controller {
+    /*!
+    * Algorithm for getting the recreated scan
+    * @param message the received message.
+    */
+    std::tuple<float, int> Algorithm::GetMinDistance(const sensor_msgs::LaserScan& currentScan)
+    {
+        std::tuple<float, int> result; 
+        sensor_msgs::LaserScan laserScan = currentScan;
+        int queueSize = laserScan.ranges.size();
 
-using namespace boost::accumulators;
+        // discard unnecessary data
+        for(int i = 0; i < queueSize; i++) {
+            bool toDiscard = (laserScan.ranges[i] < laserScan.range_min) || (laserScan.range_max < laserScan.ranges[i]);
+            if(toDiscard) { laserScan.ranges.erase(laserScan.ranges.begin()+i); }
+        }
 
-struct Algorithm::Data {
-  accumulator_set<double, features<tag::mean, tag::count>> acc;
-};
+        // Get the index of the smallest distance
+        queueSize = laserScan.ranges.size();
+        int neededIndex = 0;
+        for(int i = 1; i < queueSize; i++) {                    
+            if (laserScan.ranges[i] < laserScan.ranges[neededIndex]) { 
+                neededIndex = i; 
+            }
+        }
 
-Algorithm::Algorithm() {
-  data_ = std::make_unique<Data>();
+        result = std::make_tuple(laserScan.ranges[neededIndex], neededIndex);
+        return result;
+    }
+
+    /*!
+    * Algorithm for getting the recreated scan
+    * @param message the received message.
+    */
+    sensor_msgs::LaserScan Algorithm::GetRecreatedScan(const sensor_msgs::LaserScan& currentScan, int idxOfSmallestDist, int queueSize)
+    {
+        sensor_msgs::LaserScan recreatedScan = currentScan;
+          
+        // Check, wheter the two values before and afterwards 
+        // are in the range of the basic array
+        const int size = currentScan.ranges.size();
+        std::vector<float> ranges;
+        for(int j = idxOfSmallestDist-2; j <= idxOfSmallestDist+2; j++)
+        {
+            bool inRange = (0 <= j) && (j < size);
+            if(inRange) {
+                ranges.push_back(currentScan.ranges[j]);
+            }
+        }
+        recreatedScan.ranges = ranges;
+        recreatedScan.angle_min = currentScan.angle_min + (idxOfSmallestDist - queueSize * 0.5) * recreatedScan.angle_increment;
+        recreatedScan.angle_max = currentScan.angle_max + (idxOfSmallestDist + queueSize * 0.5) * recreatedScan.angle_increment;
+
+        return recreatedScan;
+    }
 }
-
-Algorithm::~Algorithm() = default;
-
-void Algorithm::addData(const double data)
-{
-  data_->acc(data);
-}
-
-void Algorithm::addData(const Eigen::VectorXd& data)
-{
-  for(auto i = 0; i < data.size(); ++i)
-    addData(data[i]);
-}
-
-double Algorithm::getMin() const
-{
-  return count(data_->acc) ? min(data_->acc) : 0;
-}
-
-} /* namespace */
