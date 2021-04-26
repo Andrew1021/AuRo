@@ -1,52 +1,31 @@
 #pragma once
+#include <sensor_msgs/LaserScan.h>
 
-#include <memory>
-
-#include <Eigen/Core>
-
-namespace listener_controller {
-
-/*!
- * Class containing the algorithmic part of the package.
- */
-class Algorithm
+namespace husky_highlevel_controller 
 {
- public:
-  /*!
-   * Constructor.
-   */
-  Algorithm();
+    class Algorithm
+    {
+        public:
+            /*!
+            * Constructor.
+            */
+            Algorithm();
 
-  /*!
-   * Destructor.
-   */
-  virtual ~Algorithm();
+            /*!
+            * Destructor.
+            */
+            virtual ~Algorithm();
 
-  /*!
-   * Add new measurement data.
-   * @param data the new data.
-   */
-  void addData(const double data);
+            /*!
+            * Algorithm for getting the recreated scan
+            * @param message the received message.
+            */
+            std::tuple<float, int> GetMinDistance(const sensor_msgs::LaserScan& currentScan);
 
-  /*!
-   * Add multiple measurements as once.
-   * @param data new data.
-   */
-  void addData(const Eigen::VectorXd& data);
-
-  /*!
-   * Get the min of the data.
-   * @return the min of the data.
-   */
-  double getMin() const;
-
- private:
- 
-  //! Forward declared structure that will contain the data
-  struct Data;
-
-  //! Pointer to data (pimpl)
-  std::unique_ptr<Data> data_;
-};
-
-} /* namespace */
+            /*!
+            * Algorithm for getting the recreated scan
+            * @param message the received message.
+            */
+            sensor_msgs::LaserScan GetRecreatedScan(const sensor_msgs::LaserScan& currentScan, int idxOfSmallestDist, int queueSize);
+    };
+}
