@@ -1,2 +1,3 @@
-subscriber_topic: /scan
-queue_size: 50
+subscriberTopic: /scan
+queueSize: 50
+publisherTopic: /recreated_scan
