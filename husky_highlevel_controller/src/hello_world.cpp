@@ -1,27 +1,43 @@
 // ROS C++ header
-#include <ros/ros.h>
+//#include <ros/ros.h>
+// STD
+#include <string>
+#include "husky_highlevel_controller/hello_world.hpp"
 
-int main(int argc, char ** argv)
+namespace hello_world_controller
 {
-    // must called before other ROS function 
-    ros::init(argc, argv, "hello_world");
-    ros::NodeHandle nodeHandle;
-    // helader class for looping with specific frequency
-    ros::Rate loopRate(10);
 
-    unsigned int count = 0;
-
-    // check if node should run on (false if SIGINT (Ctrl + C) or ros::shutdown())
-    while (ros::ok()) 
+    HelloWorldController::HelloWorldController(ros::NodeHandle & nodeHandle) : nodeHandle_(nodeHandle)
     {
-        // shows messages
-        ROS_INFO_STREAM("Hello World" << count);
-        // processes incoming messages via callbacks
-        ros::spinOnce();
-        loopRate.sleep();
-        count++;
+        if (!ros::ok()) {
+            ROS_ERROR("Could not start node successfull.");
+            ros::requestShutdown();
+        }
+
+        ROS_INFO("Successfully launched node.");
+
+        printHello();
     }
 
-    return 0;
+    HelloWorldController::~HelloWorldController() {}
 
-}
+    void HelloWorldController::printHello(unsigned int count)
+    {
+        // header class for looping with specific frequency
+        ros::Rate loopRate(10);
+
+        count = 0;
+
+        // check if node should run on (false if SIGINT (Ctrl + C) or ros::shutdown())
+        while (ros::ok()) 
+        {
+            // shows messages
+            ROS_INFO_STREAM("Hello World" << count);
+            // processes incoming messages via callbacks
+            ros::spinOnce();
+            loopRate.sleep();
+            count++;
+        }
+    }
+
+} /* namespace */

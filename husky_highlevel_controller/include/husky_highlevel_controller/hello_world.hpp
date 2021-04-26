@@ -26,6 +26,16 @@ private:
 
     //! ROS topic publish counter (default 0).
     unsigned int count_ = 0;
-};
 
+	/*!
+    * ROS hello world method.
+    */
+    void printHello();
+
+	/*!
+    * ROS hello world method.
+    * @param count the send counter.
+    */
+    void printHello(unsigned int count);
+};
 } /* namespace */
