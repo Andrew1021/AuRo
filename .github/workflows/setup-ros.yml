@@ -31,4 +31,4 @@ jobs:
       - name: Lint
         run: |
           cd ~/catkin_ws/src
-          catkin build AuRo --catkin-make-args roslint
+          catkin build husky_highlevel_controller --catkin-make-args roslint
