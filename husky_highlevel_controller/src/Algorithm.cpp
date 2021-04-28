@@ -1,4 +1,5 @@
 #include "husky_highlevel_controller/Algorithm.hpp"
+#include <ros/ros.h>
 
 namespace husky_highlevel_controller 
 {    
@@ -18,15 +19,7 @@ namespace husky_highlevel_controller
         std::tuple<float, int> result; 
         sensor_msgs::LaserScan laserScan = currentScan;
         int queueSize = laserScan.ranges.size();
-
-        // discard unnecessary data
-        for(int i = 0; i < queueSize; i++) {
-            bool toDiscard = (laserScan.ranges[i] < laserScan.range_min) || (laserScan.range_max < laserScan.ranges[i]);
-            if(toDiscard) { laserScan.ranges.erase(laserScan.ranges.begin()+i); }
-        }
-
-        // Get the index of the smallest distance
-        queueSize = laserScan.ranges.size();
+        
         int neededIndex = 0;
         for(int i = 1; i < queueSize; i++) {                    
             if (laserScan.ranges[i] < laserScan.ranges[neededIndex]) { 
