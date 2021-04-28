@@ -35,7 +35,8 @@ namespace husky_highlevel_controller
         int searchedIdx;
 
         std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
-        //* For part 5:*/ ROS_INFO_STREAM("min Laserscan: " << minDistance);
+
+        ROS_INFO("Minimum Distance of Laserscan: %.4f \n", minDistance);        
         
         publishRecreatedScan(message, searchedIdx);
     }
