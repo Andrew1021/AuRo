@@ -38,7 +38,7 @@ jobs:
       - name: Roslint husky_highlevel_controller
         run: |
           cd ~/catkin_ws/src
-          catkin build husky_highlevel_controller--catkin-make-args roslint
+          catkin build husky_highlevel_controller --catkin-make-args roslint
           
       - name: Execute husky_highlevel_controller
         run: |
