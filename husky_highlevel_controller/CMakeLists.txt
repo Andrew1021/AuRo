@@ -202,7 +202,6 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-#############
-## Testing ##
-#############
+## ROS Lint
+set(ROSLINT_CPP_OPTS "--filter=-runtime/references,-runtime/int")
 roslint_cpp()
