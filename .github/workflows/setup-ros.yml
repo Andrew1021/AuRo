@@ -17,6 +17,8 @@ jobs:
           apt-get install -y ros-melodic-cv-bridge
           apt-get install -y ros-melodic-roslint
           apt-get install -y astyle
+          apt-get install -y clang-format-3.9
+          apt-get install -y wget
           pip install bluerobotics-ping
           
       - name: Setup catkin workspace
@@ -29,6 +31,9 @@ jobs:
         run: |
           cd ~/catkin_ws/src
           cp -r $GITHUB_WORKSPACE .
+          wget https://raw.githubusercontent.com/davetcoleman/roscpp_code_format/master/.clang-format -O ~/catkin_ws/.clang-format
+          find . -name '*.h' -or -name '*.hpp' -or -name '*.cpp' | xargs clang-format-3.9 -i -style=file $1
+          find -regextype egrep -regex '.*\.[ch](pp)?$' -exec astyle '{}' --style=allman --indent=spaces=2 --pad-oper --unpad-paren --pad-header --convert-tabs \;
           /bin/bash -c "source ../devel/setup.bash && catkin build"
           
 #       - name: Roslint exercise_1
@@ -38,8 +43,6 @@ jobs:
           
       - name: Roslint husky_highlevel_controller
         run: |
-          cd ~/catkin_ws/src/husky_highlevel_controller
-          find -regextype egrep -regex '.*\.[ch](pp)?$' -exec astyle '{}' --style=allman --indent=spaces=2 --pad-oper --unpad-paren --pad-header --convert-tabs \;
           cd ~/catkin_ws/src
           catkin build husky_highlevel_controller --catkin-make-args roslint
           
