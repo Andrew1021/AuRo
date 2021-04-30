@@ -16,6 +16,7 @@ jobs:
           apt-get install -y ros-melodic-catkin python-catkin-tools
           apt-get install -y ros-melodic-cv-bridge
           apt-get install -y ros-melodic-roslint
+          apt-get install -y astyle
           pip install bluerobotics-ping
           
       - name: Setup catkin workspace
@@ -37,6 +38,8 @@ jobs:
           
       - name: Roslint husky_highlevel_controller
         run: |
+          cd ~/catkin_ws/src/husky_highlevel_controller
+          find -regextype egrep -regex '.*\.[ch](pp)?$' -exec astyle '{}' --style=allman --indent=spaces=2 --pad-oper --unpad-paren --pad-header --convert-tabs \;
           cd ~/catkin_ws/src
           catkin build husky_highlevel_controller --catkin-make-args roslint
           
