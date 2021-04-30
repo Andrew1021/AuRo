@@ -40,13 +40,18 @@ jobs:
 #         run: |
 #           cd ~/catkin_ws/src
 #           catkin build exercise_1 --catkin-make-args roslint
-          
-      - name: Roslint husky_highlevel_controller
-        run: |
-          cd ~/catkin_ws/src
-          catkin build husky_highlevel_controller --catkin-make-args roslint
+
+#       - name: Execute exercise_1
+#         run: |
+#           cd ~/catkin_ws
+#           roslaunch exercise_1 exercise_1.launch
           
       - name: Execute husky_highlevel_controller
         run: |
           cd ~/catkin_ws
           roslaunch husky_highlevel_controller husky_highlevel_controller.launch
+
+      - name: Roslint husky_highlevel_controller
+        run: |
+          cd ~/catkin_ws/src
+          catkin build husky_highlevel_controller --catkin-make-args roslint
