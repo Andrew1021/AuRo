@@ -49,7 +49,8 @@ jobs:
       - name: Execute husky_highlevel_controller
         run: |
           cd ~/catkin_ws
-          /bin/bash -c "source devel/setup.bash"
+          catkin build husky_highlevel_controller
+          /bin/bash -c "source /opt/ros/melodic/setup.bash && source devel/setup.bash"
           roslaunch husky_highlevel_controller husky_highlevel_controller.launch
 
       - name: Roslint husky_highlevel_controller
