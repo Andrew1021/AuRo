@@ -1,5 +1,10 @@
 #include "husky_highlevel_controller/Algorithm.hpp"
 #include <ros/ros.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf/tf.h>
+#include <tf2/utils.h>
+#include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Pose.h>
 
 namespace husky_highlevel_controller 
 {    
@@ -20,11 +25,11 @@ namespace husky_highlevel_controller
         std::tuple<float, int> result; 
         sensor_msgs::LaserScan laserScan = currentScan;
         int queueSize = laserScan.ranges.size();
-        
+
         int neededIndex = 0;
-        for(int i = 1; i < queueSize; i++) {                    
-            if (laserScan.ranges[i] < laserScan.ranges[neededIndex]) { 
-                neededIndex = i; 
+        for(int j = 1; j < queueSize; j++) {                    
+            if (laserScan.ranges[j] < laserScan.ranges[neededIndex]) { 
+                neededIndex = j; 
             }
         }
 
@@ -73,7 +78,7 @@ namespace husky_highlevel_controller
     * @param idxOfSmallestDist, index of smallest distance, queueSize
     * @return 1. float angle; 2. float range
     */
-    std::tuple<float, float> GetScanAngleRange(const sensor_msgs::LaserScan& currentScan, int idxOfSmallestDist)
+    std::tuple<float, float> Algorithm::GetScanAngleRange(const sensor_msgs::LaserScan& currentScan, int idxOfSmallestDist)
     {
         float angle, range;
 
@@ -86,18 +91,30 @@ namespace husky_highlevel_controller
 
     /*!
     * Algorithm for getting the recreated scan
+    * @param transformation current transformation
     * @param angle current angle 
     * @param range current range
     * @param kP    control param of P controller 
     */
-    geometry_msgs::Twist ComputeCmdVelParam(const geometry_msgs::TransformStamped& transformation, float angle, float range, int kP)
+    geometry_msgs::Twist Algorithm::ComputeCmdVelParam(const geometry_msgs::TransformStamped& transformation, float angle, float range, float kP)
     {
         geometry_msgs::Twist velMsg; // initialized with zeros
 
         float scanX = cosf(angle) * range;
         float scanY = sinf(angle) * range;
 
+        geometry_msgs::Pose pose;
+        pose.position.x = scanX;
+        pose.position.y = scanY;
+        ROS_INFO_STREAM("pose before: " << pose);
+        tf2::doTransform(pose, pose, transformation);
+        ROS_INFO_STREAM("pose after: " << pose);
+
+        velMsg.linear.x     = kP * pose.position.x;
+        velMsg.linear.y     = kP * pose.position.y;
+        velMsg.angular.z    = kP * atan2(pose.position.y, pose.position.x); //recreated angle from new frames
         
+        ROS_INFO_STREAM("velMsg: " << velMsg);
 
         return velMsg;
     }

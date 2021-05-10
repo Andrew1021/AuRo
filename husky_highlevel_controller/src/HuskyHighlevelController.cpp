@@ -1,6 +1,5 @@
 #include "husky_highlevel_controller/HuskyHighlevelController.hpp"
 #include <geometry_msgs/Twist.h>
-#include <tf2_ros/transform_listener.h>
 
 // STD
 #include <string>
@@ -15,9 +14,9 @@ namespace husky_highlevel_controller
             ROS_INFO("Cancelling scan node.");
         }
         else {
-            subscriber_ = nodeHandle_.subscribe(subscriberTopic_, queueSize_, &HuskyHighLevelController::topicCallback, this);
-            scanPublisher_  = nodeHandle_.advertise<geometry_msgs::Twist>(scanPublisherTopic_, queueSize_);
-            cmdVelPublisher_= nodeHandle.advertise<geometry_msgs::Twist>(cmdVelPublisherTopic_, queueSize_);
+            subscriber_     = nodeHandle_.subscribe(subscriberTopic_, queueSize_, &HuskyHighLevelController::topicCallback, this);
+            scanPublisher_  = nodeHandle_.advertise<sensor_msgs::LaserScan>(scanPublisherTopic_, queueSize_);
+            cmdVelPublisher_= nodeHandle_.advertise<geometry_msgs::Twist>(cmdVelPublisherTopic_, queueSize_);
             ROS_INFO("Successfully launched node.");
         }
     }
@@ -31,6 +30,7 @@ namespace husky_highlevel_controller
         if (!nodeHandle_.getParam("scanPublisherTopic", scanPublisherTopic_))   { return false; }
         if (!nodeHandle_.getParam("velPublisherTopic",  cmdVelPublisherTopic_)) { return false; }
         if (!nodeHandle_.getParam("kP",                 kP_))                   { return false; }
+        if (!nodeHandle_.getParam("collisionThreshold", collisionThreshold_))   { return false; }
         return true;
     }
 
@@ -41,9 +41,15 @@ namespace husky_highlevel_controller
 
         std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
 
-        ROS_INFO("Minimum Distance of Laserscan: %.4f \n", minDistance);               
+        ROS_INFO_STREAM("Minimum Distance of Laserscan: " << minDistance);   
         
         publishRecreatedScan(message, searchedIdx);
+
+        nodeHandle_.getParam("kP", kP_);          
+        nodeHandle_.getParam("collisionThreshold", collisionThreshold_);  
+        if(minDistance > (collisionThreshold_ * kP_)) {
+            navigateToPillar(message, searchedIdx);
+        }
     }
 
     void HuskyHighLevelController::publishRecreatedScan(const sensor_msgs::LaserScan& message, int searchedIdx)

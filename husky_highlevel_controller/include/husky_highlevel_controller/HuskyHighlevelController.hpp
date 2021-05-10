@@ -3,6 +3,7 @@
 //ROS
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
+#include <tf2_ros/transform_listener.h>
 
 #include "husky_highlevel_controller/Algorithm.hpp"
 
@@ -81,7 +82,8 @@ namespace husky_highlevel_controller
             std::string cmdVelPublisherTopic_;
 
             //! Control param of P-Controller
-            double kP_;
+            float kP_;
+            float collisionThreshold_;
 
             //! TF Buffer
             tf2_ros::Buffer tfBuffer_;
