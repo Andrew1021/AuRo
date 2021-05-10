@@ -41,16 +41,23 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 	  </include>
   </group>
 
-  <!-- Launch Gazebo and Husky with clearpath playpen World -->
+  <!-- Launch Gazebo and Husky with singlePillar World -->
   <group if="$(eval arg ('world_name') == 'singlePillar.world')">
     <include file="$(find husky_gazebo)/launch/husky_empty_world.launch">
       <arg name="world_name" value="$(find husky_highlevel_controller)/worlds/singlePillar.world"/>
 		  <arg name="laser_enabled" value="true"/>
 	  </include>
+    <!-- RobotModel Plugin -->
+    <include file="$(find husky_description)/launch/decription.launch">
+      <arg name="robot_namespace" value="$(arg robot_namespace)"/>
+      <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+      <arg name="realsense_enabled" value="$(arg realsense_enabled)"/>
+      <arg name="urdf_extras" value="$(arg urdf_extras)"/>
+    </include>
   </group>
 
   <!-- Launch Joy Teleop Keyboard Node -->
-  <node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py"/>
+  <!-- <node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py"/> -->
 
   <node name="husky_highlevel_controller" pkg="husky_highlevel_controller" type="husky_highlevel_controller" output="screen">
     <rosparam command="load" file="$(find husky_highlevel_controller)/config/config.yaml"/>
@@ -58,5 +65,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
   <!-- RViz -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find husky_highlevel_controller)/config/config.rviz" required="false"/>
+
   
 </launch>

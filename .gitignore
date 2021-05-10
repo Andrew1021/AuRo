@@ -92,3 +92,11 @@ qtcreator-*
 
 # Catkin custom files
 CATKIN_IGNORE
+
+# other default ros package
+autonome_roboter/*
+husky/*
+ros_best_practices/*
+ros_tutorials/*
+teleop_twist_joy/*
+kurs_2/*
