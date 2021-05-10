@@ -1,3 +1,5 @@
 subscriberTopic: /scan
 queueSize: 50
-publisherTopic: /recreated_scan
+scanPublisherTopic: /recreatedScan
+velPublisherTopic: /cmd_vel
+kP: 3

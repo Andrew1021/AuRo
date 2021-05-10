@@ -7,7 +7,13 @@ add_compile_options(-std=c++11)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs roslint)
+find_package(catkin REQUIRED COMPONENTS 
+  roscpp 
+  sensor_msgs 
+  geometry_msgs 
+  tf2
+  roslint
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -99,9 +105,15 @@ find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs roslint)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES husky_highlevel_controller
-  CATKIN_DEPENDS roscpp sensor_msgs
+  INCLUDE_DIRS 
+    include
+  LIBRARIES 
+    husky_highlevel_controller
+  CATKIN_DEPENDS 
+    roscpp 
+    sensor_msgs 
+    geometry_msgs
+    tf2
 #  DEPENDS system_lib
 )
 
@@ -203,6 +215,6 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 # catkin_add_nosetests(test)
 
 ## ROS Lint
-set(ROSLINT_CPP_OPTS "--filter=-runtime/references,-runtime/int")
+#set(ROSLINT_CPP_OPTS "--filter=-runtime/references,-runtime/int")
 roslint_cpp()
 #test

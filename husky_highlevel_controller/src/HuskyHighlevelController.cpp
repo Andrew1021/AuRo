@@ -1,11 +1,13 @@
 #include "husky_highlevel_controller/HuskyHighlevelController.hpp"
+#include <geometry_msgs/Twist.h>
+#include <tf2_ros/transform_listener.h>
 
 // STD
 #include <string>
 
 namespace husky_highlevel_controller
 {
-    HuskyHighLevelController::HuskyHighLevelController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle)
+    HuskyHighLevelController::HuskyHighLevelController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), tfListener_(tfBuffer_)
     {
         if (!readParameters()) {
             ROS_ERROR("Could not read parameters.");
@@ -13,9 +15,10 @@ namespace husky_highlevel_controller
             ROS_INFO("Cancelling scan node.");
         }
         else {
-            subscriber_ = nodeHandle_.subscribe(subscriberTopic_, 1, &HuskyHighLevelController::topicCallback, this);
-            publisher_  = nodeHandle_.advertise<sensor_msgs::LaserScan>(publisherTopic_, 10);
-            ROS_INFO("Successfully launched scan node.");
+            subscriber_ = nodeHandle_.subscribe(subscriberTopic_, queueSize_, &HuskyHighLevelController::topicCallback, this);
+            scanPublisher_  = nodeHandle_.advertise<geometry_msgs::Twist>(scanPublisherTopic_, queueSize_);
+            cmdVelPublisher_= nodeHandle.advertise<geometry_msgs::Twist>(cmdVelPublisherTopic_, queueSize_);
+            ROS_INFO("Successfully launched node.");
         }
     }
 
@@ -23,9 +26,11 @@ namespace husky_highlevel_controller
 
     bool HuskyHighLevelController::readParameters()
     {
-        if (!nodeHandle_.getParam("subscriberTopic",    subscriberTopic_))  { return false; }
-        if (!nodeHandle_.getParam("queueSize",          queueSize_))        { return false; }
-        if (!nodeHandle_.getParam("publisherTopic",     publisherTopic_))   { return false; }
+        if (!nodeHandle_.getParam("subscriberTopic",    subscriberTopic_))      { return false; }
+        if (!nodeHandle_.getParam("queueSize",          queueSize_))            { return false; }
+        if (!nodeHandle_.getParam("scanPublisherTopic", scanPublisherTopic_))   { return false; }
+        if (!nodeHandle_.getParam("velPublisherTopic",  cmdVelPublisherTopic_)) { return false; }
+        if (!nodeHandle_.getParam("kP",                 kP_))                   { return false; }
         return true;
     }
 
@@ -36,16 +41,36 @@ namespace husky_highlevel_controller
 
         std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
 
-        ROS_INFO("Minimum Distance of Laserscan: %.4f \n", minDistance);        
+        ROS_INFO("Minimum Distance of Laserscan: %.4f \n", minDistance);               
         
         publishRecreatedScan(message, searchedIdx);
     }
 
     void HuskyHighLevelController::publishRecreatedScan(const sensor_msgs::LaserScan& message, int searchedIdx)
     {
-        sensor_msgs::LaserScan recreatedScan = algorithm_.GetRecreatedScan(message, searchedIdx, queueSize_);
+        sensor_msgs::LaserScan recreatedScan = algorithm_.GetRecreatedScan(message, searchedIdx);
 
-        publisher_.publish(recreatedScan);        
+        scanPublisher_.publish(recreatedScan);        
+    }
+
+    void HuskyHighLevelController::navigateToPillar(const sensor_msgs::LaserScan& message, int searchedIdx)
+    {
+        float scanAngle, scanRange;
+        std::tie(scanAngle, scanRange) = algorithm_.GetScanAngleRange(message, searchedIdx);
+
+        geometry_msgs::TransformStamped transformation;
+        try {
+            transformation = tfBuffer_.lookupTransform("base_link", "base_laser", ros::Time(0));
+        }
+        catch (tf2::TransformException &ex) {
+            ROS_WARN("%s", ex.what());
+            ros::Duration(1.0).sleep();
+            return;
+        }
+
+        geometry_msgs::Twist cmdVelParam = algorithm_.ComputeCmdVelParam(transformation, scanAngle, scanRange, kP_);
+
+        cmdVelPublisher_.publish(cmdVelParam);
     }
 
 } /* namespace */
