@@ -1,5 +1,5 @@
+
 #include <ros/ros.h>
-#include <sensor_msgs/LaserScan.h>
 #include <std_srvs/Empty.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Twist.h>
@@ -103,7 +103,8 @@ namespace husky_highlevel_controller
             std::string cmdVelPublisherTopic_;
 
             //! Control param of P-Controller
-            double kP_;
+            float kP_;
+            float collisionThreshold_;
 
             //! TF Buffer
             tf2_ros::Buffer tfBuffer_;

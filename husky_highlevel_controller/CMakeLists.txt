@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp 
   sensor_msgs 
   geometry_msgs 
-  tf2
+  tf2_ros
   roslint
 )
 
@@ -113,7 +113,7 @@ catkin_package(
     roscpp 
     sensor_msgs 
     geometry_msgs
-    tf2
+    tf2_ros
 #  DEPENDS system_lib
 )
 

@@ -1,7 +1,4 @@
 #include "husky_highlevel_controller/HuskyHighlevelController.hpp"
-#include <geometry_msgs/Twist.h>
-#include <visualization_msgs/Marker.h>
-#include <tf2/utils.h>
 
 // STD
 #include <string>
@@ -38,6 +35,7 @@ namespace husky_highlevel_controller
         if (!nodeHandle_.getParam("scanPublisherTopic", scanPublisherTopic_))   { return false; }
         if (!nodeHandle_.getParam("velPublisherTopic",  cmdVelPublisherTopic_)) { return false; }
         if (!nodeHandle_.getParam("kP",                 kP_))                   { return false; }
+        if (!nodeHandle_.getParam("collisionThreshold", collisionThreshold_))   { return false; }
         return true;
     }
 
@@ -54,9 +52,23 @@ namespace husky_highlevel_controller
 
         std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
 
-        ROS_INFO("Minimum Distance of Laserscan: %.4f.\n", minDistance);               
+        ROS_INFO_STREAM("Minimum Distance of Laserscan: " << minDistance);   
         
         publishRecreatedScan(message, searchedIdx);
+
+        nodeHandle_.getParam("kP", kP_);          
+        nodeHandle_.getParam("collisionThreshold", collisionThreshold_);  
+        if(minDistance > (collisionThreshold_ * kP_)) {
+            navigateToPillar(message, searchedIdx);
+        }
+
+        float scanAngle, scanRange;
+        std::tie(scanAngle, scanRange) = algorithm_.GetScanAngleRange(message, searchedIdx);
+        float scanX = cosf(scanAngle) * minDistance;
+        float scanY = sinf(scanAngle) * minDistance;
+        publishVisMarker(scanX, scanY);
+
+
     }
 
     void HuskyHighLevelController::publishRecreatedScan(const sensor_msgs::LaserScan& message, int searchedIdx)
@@ -84,6 +96,7 @@ namespace husky_highlevel_controller
         geometry_msgs::Twist cmdVelParam = algorithm_.ComputeCmdVelParam(transformation, scanAngle, scanRange, kP_);
 
         cmdVelPublisher_.publish(cmdVelParam);
+
     }
 
     void HuskyHighLevelController::publishVisMarker(const double x, const double y)
@@ -133,8 +146,9 @@ namespace husky_highlevel_controller
         {
             transform_stamped = tfBuffer_.lookupTransform("odom", marker.header.frame_id, ros::Time(0));
             // TODO: calculations pose
-
-            //marker.pose = pose;
+            geometry_msgs::Pose pose;
+            tf2::doTransform(pose, pose, transform_stamped);
+            marker.pose = pose;
             marker.header.frame_id = "odom";
             // publish marker
             vis_pub_.publish( marker );

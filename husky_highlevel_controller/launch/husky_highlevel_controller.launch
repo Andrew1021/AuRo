@@ -25,7 +25,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 -->
 <launch>
 
-  <arg name="world_name" default="clearpath_playpen.world"/>
+  <arg name="world_name" default="singlePillar.world"/>
 
   <!-- Launch Gazebo and Husky with Empty World -->
   <group if="$(eval arg ('world_name') == 'empty.world')">
