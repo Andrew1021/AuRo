@@ -1,4 +1,3 @@
-
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
 #include <geometry_msgs/Pose.h>
@@ -54,21 +53,12 @@ namespace husky_highlevel_controller
 
             /*!
             * ROS publish method.
-            * @param x the received message.
-            * @param y searched index
+            * @param message the received message.
+            * @param searchedIdx searched index
             */
-            void publishVisMarker(const double x, const double y);
+            void publishMarkerRviz(const sensor_msgs::LaserScan& message, int searchedIdx);          
 
-            /*!
-            * ROS service server callback.
-            * @param request the request of the service.
-            * @param response the provided response.
-            * @return true if successful, false otherwise.
-            */
-            //bool serviceCallback(std_srvs::Trigger::Request& request, std_srvs::Trigger::Response& response);
-
-            /**
-             * @brief Service Callback for re-reading parameters
+            /* @brief Service Callback for re-reading parameters
              *        from the ROS parameter server
              * 
              * @param req Empty request
@@ -76,8 +66,8 @@ namespace husky_highlevel_controller
              * @return true service finished successfully 
              * @return false service finished unsuccessfully
              */
-            bool readParametersServiceCB(std_srvs::Empty::Request &req,
-                                        std_srvs::Empty::Response &res);
+            bool readParamCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
+
                                 
             //! ROS node handle.
             ros::NodeHandle& nodeHandle_;
@@ -102,6 +92,12 @@ namespace husky_highlevel_controller
             //! ROS topic name to publish to.
             std::string cmdVelPublisherTopic_;
 
+            //! ROS PUBLISHER
+            //! ROS topic publisher.
+            ros::Publisher markerPublisher_;
+            //! ROS topic name to publish to.
+            std::string markerPublisherTopic_;
+
             //! Control param of P-Controller
             float kP_;
             float collisionThreshold_;
@@ -110,13 +106,9 @@ namespace husky_highlevel_controller
             tf2_ros::Buffer tfBuffer_;
             tf2_ros::TransformListener tfListener_;
 
+            ros::ServiceServer read_parameterservice_;
+
             //! Algorithm computation object.
             Algorithm algorithm_;
-
-            //! Visualization marker publisher handle
-            ros::Publisher vis_pub_;
-
-            //! ROS Service to re-read parameters
-            ros::ServiceServer read_parameter_service_;
     };
 }

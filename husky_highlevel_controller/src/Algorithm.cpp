@@ -1,9 +1,7 @@
 #include "husky_highlevel_controller/Algorithm.hpp"
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
-#include <tf/tf.h>
 #include <tf2/utils.h>
-#include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
 
 namespace husky_highlevel_controller 
@@ -78,14 +76,18 @@ namespace husky_highlevel_controller
     * @param idxOfSmallestDist, index of smallest distance, queueSize
     * @return 1. float angle; 2. float range
     */
-    std::tuple<float, float> Algorithm::GetScanAngleRange(const sensor_msgs::LaserScan& currentScan, int idxOfSmallestDist)
+    std::tuple<float, float> Algorithm::GetScanCoordinates(const sensor_msgs::LaserScan& currentScan, int idxOfSmallestDist)
     {
+        float scanX, scanY;
         float angle, range;
 
         angle = currentScan.angle_min + idxOfSmallestDist * currentScan.angle_increment;
         range = currentScan.ranges[idxOfSmallestDist];
 
-        std::tuple<float, float> result = std::make_tuple(angle, range);
+        scanX = cosf(angle) * range;
+        scanY = sinf(angle) * range;
+
+        std::tuple<float, float> result = std::make_tuple(scanX, scanY);
         return result;
     }
 
@@ -96,12 +98,9 @@ namespace husky_highlevel_controller
     * @param range current range
     * @param kP    control param of P controller 
     */
-    geometry_msgs::Twist Algorithm::ComputeCmdVelParam(const geometry_msgs::TransformStamped& transformation, float angle, float range, float kP)
+    geometry_msgs::Twist Algorithm::ComputeCmdVelParam(const geometry_msgs::TransformStamped& transformation, float scanX, float scanY, float kP)
     {
         geometry_msgs::Twist velMsg; // initialized with zeros
-
-        float scanX = cosf(angle) * range;
-        float scanY = sinf(angle) * range;
 
         geometry_msgs::Pose pose;
         pose.position.x = scanX;

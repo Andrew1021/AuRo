@@ -3,4 +3,5 @@ queueSize: 50
 scanPublisherTopic: /recreatedScan
 velPublisherTopic: /cmd_vel
 kP: 1.0
-collisionThreshold: 0.17
+collisionThreshold: 0.18
+visuMarker: /visuMarker

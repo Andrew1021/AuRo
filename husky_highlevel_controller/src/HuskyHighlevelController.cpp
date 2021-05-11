@@ -1,4 +1,7 @@
 #include "husky_highlevel_controller/HuskyHighlevelController.hpp"
+#include <geometry_msgs/Twist.h>
+#include <visualization_msgs/Marker.h>
+#include <tf/tf.h>
 
 // STD
 #include <string>
@@ -13,16 +16,12 @@ namespace husky_highlevel_controller
             ROS_INFO("Cancelling scan node.");
         }
         else {
-            subscriber_ = nodeHandle_.subscribe(subscriberTopic_, queueSize_, &HuskyHighLevelController::topicCallback, this);
-            scanPublisher_  = nodeHandle_.advertise<geometry_msgs::Twist>(scanPublisherTopic_, queueSize_);
-            cmdVelPublisher_= nodeHandle.advertise<geometry_msgs::Twist>(cmdVelPublisherTopic_, queueSize_);
-
-            // First, advertise on the visualization_marker topic:
-            vis_pub_ = nodeHandle_.advertise<visualization_msgs::Marker>( "visualization_marker", 0 );
-
-            read_parameter_service_ = nodeHandle_.advertiseService("read_parameters", &HuskyHighLevelController::readParametersServiceCB, this);
-
-            ROS_INFO("Successfully started node.");
+            subscriber_     = nodeHandle_.subscribe(subscriberTopic_, queueSize_, &HuskyHighLevelController::topicCallback, this);
+            scanPublisher_  = nodeHandle_.advertise<sensor_msgs::LaserScan>(scanPublisherTopic_, queueSize_);
+            cmdVelPublisher_= nodeHandle_.advertise<geometry_msgs::Twist>(cmdVelPublisherTopic_, queueSize_);
+            markerPublisher_= nodeHandle_.advertise<visualization_msgs::Marker>("visualization_marker", 0);
+            read_parameterservice_ = nodeHandle_.advertiseService("read_parameters", &HuskyHighLevelController::readParamCallback, this);
+            ROS_INFO("Successfully launched node.");
         }
     }
 
@@ -36,12 +35,13 @@ namespace husky_highlevel_controller
         if (!nodeHandle_.getParam("velPublisherTopic",  cmdVelPublisherTopic_)) { return false; }
         if (!nodeHandle_.getParam("kP",                 kP_))                   { return false; }
         if (!nodeHandle_.getParam("collisionThreshold", collisionThreshold_))   { return false; }
+        if (!nodeHandle_.getParam("visuMarker",         markerPublisherTopic_)) { return false; }
         return true;
     }
 
-    bool HuskyHighLevelController::readParametersServiceCB(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+    bool HuskyHighLevelController::readParamCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
     {
-        ROS_INFO("Reading parameters from param server.");
+        ROS_INFO("Reading parameter from parameter server...");
         return readParameters();
     }
 
@@ -56,19 +56,12 @@ namespace husky_highlevel_controller
         
         publishRecreatedScan(message, searchedIdx);
 
-        nodeHandle_.getParam("kP", kP_);          
-        nodeHandle_.getParam("collisionThreshold", collisionThreshold_);  
+        // nodeHandle_.getParam("kP", kP_);          
+        // nodeHandle_.getParam("collisionThreshold", collisionThreshold_);  
         if(minDistance > (collisionThreshold_ * kP_)) {
             navigateToPillar(message, searchedIdx);
         }
-
-        float scanAngle, scanRange;
-        std::tie(scanAngle, scanRange) = algorithm_.GetScanAngleRange(message, searchedIdx);
-        float scanX = cosf(scanAngle) * minDistance;
-        float scanY = sinf(scanAngle) * minDistance;
-        publishVisMarker(scanX, scanY);
-
-
+        publishMarkerRviz(message, searchedIdx);
     }
 
     void HuskyHighLevelController::publishRecreatedScan(const sensor_msgs::LaserScan& message, int searchedIdx)
@@ -80,8 +73,8 @@ namespace husky_highlevel_controller
 
     void HuskyHighLevelController::navigateToPillar(const sensor_msgs::LaserScan& message, int searchedIdx)
     {
-        float scanAngle, scanRange;
-        std::tie(scanAngle, scanRange) = algorithm_.GetScanAngleRange(message, searchedIdx);
+        float scanX, scanY;
+        std::tie(scanX, scanY) = algorithm_.GetScanCoordinates(message, searchedIdx);
 
         geometry_msgs::TransformStamped transformation;
         try {
@@ -93,71 +86,64 @@ namespace husky_highlevel_controller
             return;
         }
 
-        geometry_msgs::Twist cmdVelParam = algorithm_.ComputeCmdVelParam(transformation, scanAngle, scanRange, kP_);
+        geometry_msgs::Twist cmdVelParam = algorithm_.ComputeCmdVelParam(transformation, scanX, scanY, kP_);
 
         cmdVelPublisher_.publish(cmdVelParam);
 
     }
 
-    void HuskyHighLevelController::publishVisMarker(const double x, const double y)
+    void HuskyHighLevelController::publishMarkerRviz(const sensor_msgs::LaserScan& message, int searchedIdx)
     {
-        // After that it's as simple as filling out a visualization_msgs/Marker message and publishing it:
-        geometry_msgs::TransformStamped transform_stamped; 
-        visualization_msgs::Marker marker;
-        marker.header.frame_id = "base_laser";
-        marker.header.stamp = ros::Time();
-        marker.ns = "husky_highlevel_controller";
-        marker.id = 0;
-        marker.type = visualization_msgs::Marker::MESH_RESOURCE; //CYLINDER; //SPHERE; //ARROW;
-        marker.action = visualization_msgs::Marker::ADD;
+        visualization_msgs::Marker marker_baselaser;
+        visualization_msgs::Marker marker_odom;
+        geometry_msgs::Pose pose;
+        geometry_msgs::TransformStamped transformation;
 
-        marker.pose.position.x = 1;
-        marker.pose.position.y = 1;
-        marker.pose.position.z = 1;
+        float scanX, scanY;
+        std::tie(scanX, scanY) = algorithm_.GetScanCoordinates(message, searchedIdx);
 
-        marker.pose.orientation.x = 0.0;
-        marker.pose.orientation.y = -M_PI_2; //0.0;
-        marker.pose.orientation.z = 0.0;
-        marker.pose.orientation.w = 1.0;
+        pose.position.x = scanX+0.5;
+        pose.position.y = scanY;
+        pose.position.z = -1.0;
+        pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0, 0, 0);
 
-        marker.scale.x = 1;
-        marker.scale.y = 0.1;
-        marker.scale.z = 0.1;
+        // marker base_laser frame
+        marker_baselaser.header.frame_id = "base_laser";
+        marker_baselaser.header.stamp = ros::Time();
+        marker_baselaser.id = 0;
+        marker_baselaser.type = visualization_msgs::Marker::CYLINDER; 
+        marker_baselaser.action = visualization_msgs::Marker::ADD;
+        marker_baselaser.pose = pose;
+        marker_baselaser.scale.x = 1.0;
+        marker_baselaser.scale.y = 1.0;
+        marker_baselaser.scale.z = 3.0;
+        marker_baselaser.color.a = 1.0;
+        marker_baselaser.color.r = 0.0;
+        marker_baselaser.color.g = 1.0;
+        marker_baselaser.color.b = 0.0;
+        markerPublisher_.publish(marker_baselaser);
 
-        marker.color.a = 1.0; // Don't forget to set the alpha!
-        marker.color.r = 1.0; // frist red
-        marker.color.g = 0.0;
-        marker.color.b = 0.0;
+        // marker odom frame
+        marker_odom = marker_baselaser;
+        marker_odom.id = 1;
+        marker_odom.color.r = 1.0;
+        marker_odom.color.g = 0.0;
+        marker_odom.color.b = 1.0;
+        marker_odom.header.frame_id = "odom";
 
-        //only if using a MESH_RESOURCE marker type:
-        marker.mesh_resource = "package://pr2_description/meshes/base_v0/base.dae";
-
-        // Publish marker with red color
-        vis_pub_.publish(marker);
-
-        // Change color to green for new marker
-        marker.id = 1;
-        marker.color.a = 1.0; // Don't forget to set the alpha!
-        marker.color.r = 0.0;
-        marker.color.g = 1.0;
-        marker.color.b = 0.0;
-
+        // Transform pose from base_laser to odom
         try
         {
-            transform_stamped = tfBuffer_.lookupTransform("odom", marker.header.frame_id, ros::Time(0));
-            // TODO: calculations pose
-            geometry_msgs::Pose pose;
-            tf2::doTransform(pose, pose, transform_stamped);
-            marker.pose = pose;
-            marker.header.frame_id = "odom";
-            // publish marker
-            vis_pub_.publish( marker );
-
+            transformation = tfBuffer_.lookupTransform("odom", "base_laser", ros::Time(0));
+            tf2::doTransform(pose, pose, transformation);
+            marker_odom.pose = pose;
+            markerPublisher_.publish(marker_odom);
         }
-        catch (tf::TransformException &ex) 
+        catch (tf::TransformException ex)
         {
-            ROS_ERROR("%s",ex.what());
-            ros::Duration(1.0).sleep();
+            ROS_ERROR("%s", ex.what());
+            return;
         }
-    }
-}// namespace husky_highlevel_controller
+    }   
+
+} /* namespace */

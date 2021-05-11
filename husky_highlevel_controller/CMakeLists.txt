@@ -215,6 +215,6 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 # catkin_add_nosetests(test)
 
 ## ROS Lint
-#set(ROSLINT_CPP_OPTS "--filter=-runtime/references,-runtime/int")
+set(ROSLINT_CPP_OPTS "--filter=-runtime/references,-runtime/int")
 roslint_cpp()
 #test

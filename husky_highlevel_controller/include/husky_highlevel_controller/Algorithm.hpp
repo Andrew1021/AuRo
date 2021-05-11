@@ -35,9 +35,9 @@ namespace husky_highlevel_controller
             * Algorithm for getting the recreated scan
             * @param currentScan the received message
             * @param idxOfSmallestDist, index of smallest distance, queueSize
-            * @return 1. float angle; 2. float range
+            * @return 1. float scanX; 2. float scanY
             */
-            std::tuple<float, float> GetScanAngleRange(const sensor_msgs::LaserScan& currentScan, int idxOfSmallestDist);
+            std::tuple<float, float> GetScanCoordinates(const sensor_msgs::LaserScan& currentScan, int idxOfSmallestDist);
 
             /*!
             * Algorithm for getting the recreated scan

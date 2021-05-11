@@ -47,13 +47,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <arg name="world_name" value="$(find husky_highlevel_controller)/worlds/singlePillar.world"/>
 		  <arg name="laser_enabled" value="true"/>
 	  </include>
-    <!-- RobotModel Plugin -->
-    <include file="$(find husky_description)/launch/decription.launch">
-      <arg name="robot_namespace" value="$(arg robot_namespace)"/>
-      <arg name="laser_enabled" value="$(arg laser_enabled)"/>
-      <arg name="realsense_enabled" value="$(arg realsense_enabled)"/>
-      <arg name="urdf_extras" value="$(arg urdf_extras)"/>
-    </include>
   </group>
 
   <!-- Launch Joy Teleop Keyboard Node -->
