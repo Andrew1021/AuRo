@@ -1,0 +1,15 @@
+#include <ros/ros.h>
+#include "husky_highlevel_controller/husky_highlevel_controller_subscriber.hpp"
+
+int main(int argc, char ** argv)
+{
+    // must called before other ROS function 
+    ros::init(argc, argv, "husky_highlevel_controller_subscriber");
+    ros::NodeHandle nodeHandle("~");
+    
+    husky_highlevel_controller_subscriber::HuskyHighLevelControllerSubscriber HuskyHighLevelControllerSubscriber(nodeHandle);
+    
+    ros::spin();
+
+    return 0;
+}
