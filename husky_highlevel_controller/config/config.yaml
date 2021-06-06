@@ -1,7 +1,9 @@
-subscriberTopic: /scan
+scanTopic: /scan
 queueSize: 50
 scanPublisherTopic: /recreatedScan
 velPublisherTopic: /cmd_vel
 kP: 1.0
-collisionThreshold: 0.18
+collisionThreshold: 1.0
 visuMarker: /visuMarker
+distanceToWall: 1.0
+wallLead: 2.0

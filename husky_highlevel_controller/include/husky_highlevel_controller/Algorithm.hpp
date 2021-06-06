@@ -47,5 +47,15 @@ namespace husky_highlevel_controller
             * @param kP    control param of P controller 
             */
             geometry_msgs::Twist ComputeCmdVelParam(const geometry_msgs::TransformStamped& transformation, float angle, float range, float kP);
+
+            /*!
+            * Algorithm for getting the recreated scan
+            * @param transformation current transformation
+            * @param recreatedScan  recreated scan with the smallest distance and surrounding values 
+            * @param kP             control param of P controller 
+            */
+            geometry_msgs::Twist WallFollowing(
+                const geometry_msgs::TransformStamped& transformation, const sensor_msgs::LaserScan& recreatedScan, float kP
+            );
     };
 }

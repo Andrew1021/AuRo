@@ -64,6 +64,7 @@ devel_isolated/
 
 .vscode/*
 husky_highlevel_controller/.vscode/*
+husky_highlevel_controller_msgs/.vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json

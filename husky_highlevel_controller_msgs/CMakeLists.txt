@@ -1,29 +1,21 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(husky_highlevel_controller)
+project(husky_highlevel_controller_msgs)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+#add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(
-  catkin REQUIRED COMPONENTS 
-  roscpp 
-  sensor_msgs 
-  geometry_msgs 
-  # husky_highlevel_controller_msgs
-  roslint
-  visualization_msgs
-  tf
-  tf2
-  tf2_ros
-  std_msgs 
-  message_generation
+    catkin REQUIRED COMPONENTS
+    roscpp
+    std_msgs 
+    message_generation
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+#find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -77,8 +69,8 @@ add_message_files(
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
-  DEPENDENCIES
-  std_msgs  
+    DEPENDENCIES
+    std_msgs  
 )
 
 ################################################
@@ -111,20 +103,13 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS 
-    include
-  #LIBRARIES 
-    #husky_highlevel_controller
-  CATKIN_DEPENDS 
-    roscpp 
-    sensor_msgs 
-    geometry_msgs
-    tf2_ros
-    visualization_msgs
-    tf
-    tf2
-    # husky_highlevel_controller_msgs
-#  DEPENDS system_lib
+#     # INCLUDE_DIRS 
+#     #   include
+     LIBRARIES 
+        husky_highlevel_controller_msgs
+#     CATKIN_DEPENDS 
+#       std_msgs
+#   #  DEPENDS system_lib
 )
 
 ###########
@@ -133,34 +118,24 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
- include ${catkin_INCLUDE_DIRS}
-)
+# include_directories(
+#     include  ${catkin_INCLUDE_DIRS}
+# )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/husky_highlevel_controller.cpp
+#   src/${PROJECT_NAME}/husky_highlevel_controller_msgs.cpp
 # )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(husky_motion_controller_node
-src/husky_motion_controller_node.cpp 
-src/HuskyMotionController.cpp
-src/Algorithm.cpp
-)
-
-add_executable(husky_sensor_evaluation_node
-  src/husky_sensor_evaluation_node.cpp 
-  src/HuskySensorEvaluation.cpp
-  src/Algorithm.cpp
-)
+# add_executable(use_custom_msg use_custom_msg.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -173,9 +148,9 @@ add_executable(husky_sensor_evaluation_node
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(husky_motion_controller_node ${catkin_LIBRARIES})
-
-target_link_libraries(husky_sensor_evaluation_node ${catkin_LIBRARIES})
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
@@ -224,15 +199,10 @@ target_link_libraries(husky_sensor_evaluation_node ${catkin_LIBRARIES})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_excercise_1.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_husky_highlevel_controller_msgs.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-
-## ROS Lint
-set(ROSLINT_CPP_OPTS "--filter=-runtime/references,-runtime/int")
-roslint_cpp()
-#test

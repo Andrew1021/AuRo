@@ -8,21 +8,21 @@
 #include <visualization_msgs/Marker.h>
 #include "husky_highlevel_controller/Algorithm.hpp"
 
-namespace husky_highlevel_controller_publisher
+namespace husky_highlevel_controller
 {
-    class HuskyHighLevelControllerPublisher 
+    class HuskyMotionController 
     {   
         public: 
             /*!
             * Constructor.
             * @param nodeHandle the ROS node handle.
             */
-            HuskyHighLevelControllerPublisher(ros::NodeHandle& nodeHandle);
+            HuskyMotionController(ros::NodeHandle& nodeHandle);
 
             /*!
             * Destructor.
             */
-            virtual ~HuskyHighLevelControllerPublisher();
+            virtual ~HuskyMotionController();
 
         private:
             /*!
@@ -76,15 +76,9 @@ namespace husky_highlevel_controller_publisher
             //! ROS topic subscriber.
             ros::Subscriber subscriber_;
             //! ROS topic name to subscribe to.
-            std::string subscriberTopic_;
+            std::string scanPublisherTopic_;
             //! Queue size of LaserScan message
             int queueSize_;
-
-            //! ROS PUBLISHER
-            //! ROS topic publisher.
-            ros::Publisher scanPublisher_;
-            //! ROS topic name to publish to.
-            std::string scanPublisherTopic_;
 
             //! ROS PUBLISHER
             //! ROS topic publisher.

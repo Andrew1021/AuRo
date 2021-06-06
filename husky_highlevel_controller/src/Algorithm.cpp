@@ -76,13 +76,13 @@ namespace husky_highlevel_controller
     * @param idxOfSmallestDist, index of smallest distance, queueSize
     * @return 1. float angle; 2. float range
     */
-    std::tuple<float, float> Algorithm::GetScanCoordinates(const sensor_msgs::LaserScan& currentScan, int idxOfSmallestDist)
+    std::tuple<float, float> Algorithm::GetScanCoordinates(const sensor_msgs::LaserScan& currentScan, int index)
     {
         float scanX, scanY;
         float angle, range;
 
-        angle = currentScan.angle_min + idxOfSmallestDist * currentScan.angle_increment;
-        range = currentScan.ranges[idxOfSmallestDist];
+        angle = currentScan.angle_min + index * currentScan.angle_increment;
+        range = currentScan.ranges[index];
 
         scanX = cosf(angle) * range;
         scanY = sinf(angle) * range;
@@ -115,6 +115,32 @@ namespace husky_highlevel_controller
         
         ROS_INFO_STREAM("velMsg: " << velMsg);
 
+        return velMsg;
+    }
+
+    /*!
+    * Algorithm for getting the recreated scan
+    * @param transformation current transformation
+    * @param angle current angle 
+    * @param range current range
+    * @param kP    control param of P controller 
+    */
+    geometry_msgs::Twist Algorithm::WallFollowing(
+        const geometry_msgs::TransformStamped& transformation, const sensor_msgs::LaserScan& recreatedScan, float kP
+    ){
+        geometry_msgs::Twist velMsg; // initialized with zeros
+
+        float scanX, scanY;
+        std::tie(scanX, scanY) = this->GetScanCoordinates(recreatedScan, recreatedScan.ranges.size() - 1);
+
+        float walllead = 2.0;
+        float disWAll = 1.0;
+
+        float wallVectorX = scanX + walllead;
+        float wallVectorY = scanY - disWAll;
+
+        velMsg = this->ComputeCmdVelParam(transformation, wallVectorX, wallVectorY, kP);
+        
         return velMsg;
     }
 }

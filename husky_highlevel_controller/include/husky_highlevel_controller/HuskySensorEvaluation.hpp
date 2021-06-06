@@ -1,29 +1,24 @@
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/Twist.h>
 #include <sensor_msgs/LaserScan.h>
-#include <tf/tf.h>
-#include <tf2_ros/transform_listener.h>
-#include <visualization_msgs/Marker.h>
 #include <husky_highlevel_controller/Algorithm.hpp>
 
 
-namespace husky_highlevel_controller_subscriber
+namespace husky_highlevel_controller
 {
-    class HuskyHighLevelControllerSubscriber 
+    class HuskySensorEvaluation 
     {   
         public: 
             /*!
             * Constructor.
             * @param nodeHandle the ROS node handle.
             */
-            HuskyHighLevelControllerSubscriber(ros::NodeHandle& nodeHandle);
+            HuskySensorEvaluation(ros::NodeHandle& nodeHandle);
 
             /*!
             * Destructor.
             */
-            virtual ~HuskyHighLevelControllerSubscriber();
+            virtual ~HuskySensorEvaluation();
 
         private:
             /*!
@@ -63,7 +58,7 @@ namespace husky_highlevel_controller_subscriber
             //! ROS topic subscriber.
             ros::Subscriber subscriber_;
             //! ROS topic name to subscribe to.
-            std::string subscriberTopic_;
+            std::string scanTopic_;
             //! Queue size of LaserScan message
             int queueSize_;
 
@@ -73,17 +68,9 @@ namespace husky_highlevel_controller_subscriber
             //! ROS topic name to publish to.
             std::string scanPublisherTopic_;
 
-            //! TF Buffer
-            tf2_ros::Buffer tfBuffer_;
-            tf2_ros::TransformListener tfListener_;
-
             ros::ServiceServer read_parameterservice_;
 
             //! Algorithm computation object.
             Algorithm algorithm_;
-
-            //! Control param of P-Controller
-            float kP_;
-            float collisionThreshold_;
     };
 }

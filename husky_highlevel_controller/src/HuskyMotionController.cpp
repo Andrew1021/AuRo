@@ -1,4 +1,4 @@
-#include "husky_highlevel_controller/husky_highlevel_controller_publisher.hpp"
+#include "husky_highlevel_controller/HuskyMotionController.hpp"
 #include <geometry_msgs/Twist.h>
 #include <visualization_msgs/Marker.h>
 #include <tf/tf.h>
@@ -6,9 +6,9 @@
 // STD
 #include <string>
 
-namespace husky_highlevel_controller_publisher
+namespace husky_highlevel_controller
 {
-    HuskyHighLevelControllerPublisher::HuskyHighLevelControllerPublisher(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), tfListener_(tfBuffer_)
+    HuskyMotionController::HuskyMotionController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), tfListener_(tfBuffer_)
     {
         if (!readParameters()) {
             ROS_ERROR("Could not read parameters.");
@@ -16,19 +16,18 @@ namespace husky_highlevel_controller_publisher
             ROS_INFO("Cancelling scan node.");
         }
         else {
-            subscriber_     = nodeHandle_.subscribe(scanPublisherTopic_, queueSize_, &HuskyHighLevelControllerPublisher::topicCallback, this);
+            subscriber_     = nodeHandle_.subscribe(scanPublisherTopic_, queueSize_, &HuskyMotionController::topicCallback, this);
             cmdVelPublisher_= nodeHandle_.advertise<geometry_msgs::Twist>(cmdVelPublisherTopic_, queueSize_);
             markerPublisher_= nodeHandle_.advertise<visualization_msgs::Marker>("visualization_marker", 0);
-            read_parameterservice_ = nodeHandle_.advertiseService("read_parameters", &HuskyHighLevelControllerPublisher::readParamCallback, this);
+            read_parameterservice_ = nodeHandle_.advertiseService("read_parameters", &HuskyMotionController::readParamCallback, this);
             ROS_INFO("Successfully launched node.");
         }
     }
 
-    HuskyHighLevelControllerPublisher::~HuskyHighLevelControllerPublisher() {}
+    HuskyMotionController::~HuskyMotionController() {}
 
-    bool HuskyHighLevelControllerPublisher::readParameters()
+    bool HuskyMotionController::readParameters()
     {
-        if (!nodeHandle_.getParam("subscriberTopic",    subscriberTopic_))      { return false; }
         if (!nodeHandle_.getParam("queueSize",          queueSize_))            { return false; }
         if (!nodeHandle_.getParam("scanPublisherTopic", scanPublisherTopic_))   { return false; }
         if (!nodeHandle_.getParam("velPublisherTopic",  cmdVelPublisherTopic_)) { return false; }
@@ -38,13 +37,13 @@ namespace husky_highlevel_controller_publisher
         return true;
     }
 
-    bool HuskyHighLevelControllerPublisher::readParamCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+    bool HuskyMotionController::readParamCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
     {
         ROS_INFO("Reading parameter from parameter server...");
         return readParameters();
     }
 
-    void HuskyHighLevelControllerPublisher::topicCallback(const sensor_msgs::LaserScan& message)
+    void HuskyMotionController::topicCallback(const sensor_msgs::LaserScan& message)
     {
         float minDistance;
         int searchedIdx;
@@ -58,7 +57,7 @@ namespace husky_highlevel_controller_publisher
         publishMarkerRviz(message, searchedIdx);
     }
 
-    void HuskyHighLevelControllerPublisher::navigateToPillar(const sensor_msgs::LaserScan& message, int searchedIdx)
+    void HuskyMotionController::navigateToPillar(const sensor_msgs::LaserScan& message, int searchedIdx)
     {
         float scanX, scanY;
         std::tie(scanX, scanY) = algorithm_.GetScanCoordinates(message, searchedIdx);
@@ -82,7 +81,7 @@ namespace husky_highlevel_controller_publisher
 
     }
 
-    void HuskyHighLevelControllerPublisher::publishMarkerRviz(const sensor_msgs::LaserScan& message, int searchedIdx)
+    void HuskyMotionController::publishMarkerRviz(const sensor_msgs::LaserScan& message, int searchedIdx)
     {
         visualization_msgs::Marker marker_baselaser;
         visualization_msgs::Marker marker_odom;
