@@ -37,6 +37,7 @@
   <depend>std_msgs</depend>
 
   <depend>message_generation</depend>
+  <depend>message_runtime</depend>
 
   
   <!--   Note that this is equivalent to the following: -->

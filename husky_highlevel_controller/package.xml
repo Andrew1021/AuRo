@@ -38,10 +38,12 @@
   <depend>visualization_msgs</depend>
   <depend>tf</depend>
   <depend>tf2</depend>
-  <!-- <depend>husky_highlevel_controller_msgs</depend> -->
   <depend>std_msgs</depend>
-
   <depend>message_generation</depend>
+  <!-- <depend>husky_highlevel_controller_msgs</depend> -->
+  <depend>message_runtime</depend>
+  <depend>actionlib</depend>
+  <depend>actionlib_msgs</depend>
   
   
   <!--   Note that this is equivalent to the following: -->

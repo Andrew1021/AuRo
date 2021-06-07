@@ -12,6 +12,7 @@ find_package(
     roscpp
     std_msgs 
     message_generation
+    message_runtime
 )
 
 ## System dependencies are found with CMake's conventions
@@ -105,10 +106,11 @@ generate_messages(
 catkin_package(
 #     # INCLUDE_DIRS 
 #     #   include
-     LIBRARIES 
-        husky_highlevel_controller_msgs
-#     CATKIN_DEPENDS 
-#       std_msgs
+#     LIBRARIES 
+#        husky_highlevel_controller_msgs
+     CATKIN_DEPENDS 
+       std_msgs
+       message_runtime
 #   #  DEPENDS system_lib
 )
 
