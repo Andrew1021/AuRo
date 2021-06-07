@@ -44,6 +44,7 @@
   <depend>message_runtime</depend>
   <depend>actionlib</depend>
   <depend>actionlib_msgs</depend>
+  <depend>std_srvs</depend>
   
   
   <!--   Note that this is equivalent to the following: -->

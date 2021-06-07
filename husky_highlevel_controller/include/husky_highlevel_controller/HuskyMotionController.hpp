@@ -8,6 +8,12 @@
 #include <visualization_msgs/Marker.h>
 #include "husky_highlevel_controller/Algorithm.hpp"
 
+#include <actionlib/server/simple_action_server.h>
+#include <std_msgs/ColorRGBA.h>
+#include <husky_highlevel_controller/husky_highlevel_controllerAction.h>
+#include <husky_highlevel_controller/WallRoute.h>
+
+
 namespace husky_highlevel_controller
 {
     class HuskyMotionController 
@@ -23,6 +29,19 @@ namespace husky_highlevel_controller
             * Destructor.
             */
             virtual ~HuskyMotionController();
+
+            /**
+             * @brief Execute Callback on new Goal
+             * 
+             * @param goal goal
+             */
+            void executeCB(const husky_highlevel_controller::HuskyDriveGoalConstPtr &goal);
+
+            /**
+             * @brief Callback Method will be called on goal cancel.
+             * 
+             */
+            void preemptCB();
 
         private:
             /*!
@@ -104,5 +123,18 @@ namespace husky_highlevel_controller
 
             //! Algorithm computation object.
             Algorithm algorithm_;
+
+            /**
+             * @brief HuskyDrive Action Server
+             * 
+             * NOTE: NodeHandle instance must be created before this line. Otherwise strange error occurs.
+             */
+            actionlib::SimpleActionServer<husky_highlevel_controller::HuskyDriveAction> as_;
+
+            // HuskyDrive feedback
+            husky_highlevel_controller::HuskyDriveFeedback feedback_;
+
+            // HuskyDriver result
+            husky_highlevel_controller::HuskyDriveResult result_;
     };
 }
