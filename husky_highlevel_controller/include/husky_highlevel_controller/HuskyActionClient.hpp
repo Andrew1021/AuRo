@@ -36,7 +36,7 @@ namespace husky_highlevel_controller
         ros::ServiceServer read_parameter_server_service_;
 
         // Min allowed distance and angle to wall
-        double min_x;
+        double _distanceToWall;
         double min_y;
 
         bool readParameters();
@@ -79,14 +79,14 @@ namespace husky_highlevel_controller
          * @param result Result
          */
         void serverDoneCB(const actionlib::SimpleClientGoalState &state,
-                          const husky_highlevel_controller::HuskyMotionControllerActionResultConstPtr &result);
+                          const husky_highlevel_controller::HuskyMotionControllerResultConstPtr &result);
 
         /**
          * @brief Callback method will be called if a feedback from server is available.
          * 
          * @param feedback feedback.
          */
-        void serverFeedbackCB(const husky_highlevel_controller::HuskyMotionControllerActionFeedbackConstPtr &feedback);
+        void serverFeedbackCB(const husky_highlevel_controller::HuskyMotionControllerFeedbackConstPtr &feedback);
 
     };
 }

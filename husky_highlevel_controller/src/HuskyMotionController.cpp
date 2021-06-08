@@ -90,12 +90,13 @@ namespace husky_highlevel_controller
         geometry_msgs::Twist cmdVelParam = algorithm_.ComputeCmdVelParam(transformation, scanX, scanY, kP_);
 
         cmdVelPublisher_.publish(cmdVelParam);
+        as_.setSucceeded(result_);
 
     }
 
     void HuskyMotionController::preemptCB()
     {
-        ROS_WARN("Husky Drive Action: Preempted");
+        ROS_WARN("Husky Motion Action: Preempted");
 
         geometry_msgs::Twist zero_vel;
 
