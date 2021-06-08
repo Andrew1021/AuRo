@@ -38,7 +38,13 @@ namespace husky_highlevel_controller
             * @param message the received message.
             * @param searchedIdx searched index
             */
-            void publishRecreatedScan(const sensor_msgs::LaserScan& message, int searchedIdx);          
+            void publishRecreatedScan(const sensor_msgs::LaserScan& message, int searchedIdx);    
+
+            /*!
+            * ROS publish method.
+            * @param message the received message.
+            */
+            void publishHuskyMove(const sensor_msgs::LaserScan& message);    
 
             /* @brief Service Callback for re-reading parameters
              *        from the ROS parameter server
@@ -68,7 +74,15 @@ namespace husky_highlevel_controller
             //! ROS topic name to publish to.
             std::string scanPublisherTopic_;
 
+            //! ROS PUBLISHER
+            //! ROS topic publisher.
+            ros::Publisher huskyMovePublisher_;
+            //! ROS topic name to publish to.
+            std::string huskyMovePublisherTopic_;
+
             ros::ServiceServer read_parameterservice_;
+
+            float distanceToWall_;
 
             //! Algorithm computation object.
             Algorithm algorithm_;

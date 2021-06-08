@@ -1,10 +1,19 @@
 #pragma once
 
+#include "husky_highlevel_controller_msgs/HuskyMove.h"
 #include <sensor_msgs/LaserScan.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Twist.h>
 namespace husky_highlevel_controller 
 {
+    typedef enum _ROBOT_MOVEMENT {
+        STRAIGHT = 0,
+        TURN_LEFT,
+        FOLLOW_WALL,
+        STRAIGHT_SLOW,
+        REVERSE_LEFT,
+        STOP
+    } ROBOT_MOVEMENT;       
     class Algorithm
     {
         public:
@@ -16,7 +25,9 @@ namespace husky_highlevel_controller
             /*!
             * Destructor.
             */
-            virtual ~Algorithm();            
+            virtual ~Algorithm();  
+            
+            // Define the robot direction of movement  
 
             /*!
             * Algorithm for getting the minimum distance
@@ -50,12 +61,8 @@ namespace husky_highlevel_controller
 
             /*!
             * Algorithm for getting the recreated scan
-            * @param transformation current transformation
-            * @param recreatedScan  recreated scan with the smallest distance and surrounding values 
-            * @param kP             control param of P controller 
+            * @param scan  current laserScan 
             */
-            geometry_msgs::Twist WallFollowing(
-                const geometry_msgs::TransformStamped& transformation, const sensor_msgs::LaserScan& recreatedScan, float kP
-            );
+            husky_highlevel_controller_msgs::HuskyMove WallFollower(const sensor_msgs::LaserScan& scan, float distanceToObject);
     };
 }

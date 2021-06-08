@@ -8,21 +8,21 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(
-  catkin REQUIRED COMPONENTS 
-  roscpp 
-  sensor_msgs 
-  geometry_msgs 
+  catkin REQUIRED COMPONENTS
+  roscpp
+  sensor_msgs
+  geometry_msgs
   roslint
   visualization_msgs
   tf
   tf2
   tf2_ros
-  std_msgs 
-  genmsg
-  message_generation
-  message_runtime
+  # std_msgs
+  # genmsg
+  # message_generation
+  # message_runtime
   std_srvs
-  #husky_highlevel_controller_msgs
+  husky_highlevel_controller_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -59,10 +59,10 @@ find_package(
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-    FILES
-    WallRoute.msg
-)
+# add_message_files(
+#     FILES
+#     WallRoute.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -72,21 +72,19 @@ add_message_files(
 # )
 
 ## Generate actions in the 'action' folder
-add_action_files(
-   FILES
-   HuskyMotionController.action
+# add_action_files(
+#    FILES
+#    HuskyMotionController.action
 #   Action2.action
-)
+#)
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  sensor_msgs 
-  geometry_msgs
-  actionlib_msgs
-  std_srvs   
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+#   actionlib_msgs
+#   std_srvs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##

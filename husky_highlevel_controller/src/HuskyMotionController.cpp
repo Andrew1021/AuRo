@@ -9,7 +9,7 @@
 namespace husky_highlevel_controller
 {
     HuskyMotionController::HuskyMotionController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), 
-    tfListener_(tfBuffer_), as_("husky_motion_action", boost::bind(&HuskyMotionController::topicCallback, this, _1), false)
+    tfListener_(tfBuffer_)//, as_("husky_motion_action", boost::bind(&HuskyMotionController::topicCallback, this, _1), false)
     {
         if (!readParameters()) {
             ROS_ERROR("Could not read parameters.");
@@ -17,29 +17,29 @@ namespace husky_highlevel_controller
             ROS_INFO("Cancelling scan node.");
         }
         else {
-            subscriber_     = nodeHandle_.subscribe(scanPublisherTopic_, queueSize_, &HuskyMotionController::topicCallback, this);
+            subscriber_     = nodeHandle_.subscribe(subscriberTopic_, queueSize_, &HuskyMotionController::topicCallback, this);
             cmdVelPublisher_= nodeHandle_.advertise<geometry_msgs::Twist>(cmdVelPublisherTopic_, queueSize_);
             markerPublisher_= nodeHandle_.advertise<visualization_msgs::Marker>("visualization_marker", 0);
             read_parameterservice_ = nodeHandle_.advertiseService("read_parameters", &HuskyMotionController::readParamCallback, this);
-            as_.registerPreemptCallback(boost::bind(&HuskyMotionController::preemptCB, this));
-            as_.start();
+            // as_.registerPreemptCallback(boost::bind(&HuskyMotionController::preemptCB, this));
+            // as_.start();
             ROS_INFO("Successfully launched node.");
         }
     }
 
     HuskyMotionController::~HuskyMotionController() 
     {
-        as_.shutdown();
+        // as_.shutdown();
     }
 
     bool HuskyMotionController::readParameters()
     {
-        if (!nodeHandle_.getParam("queueSize",          queueSize_))            { return false; }
-        if (!nodeHandle_.getParam("scanPublisherTopic", scanPublisherTopic_))   { return false; }
-        if (!nodeHandle_.getParam("velPublisherTopic",  cmdVelPublisherTopic_)) { return false; }
-        if (!nodeHandle_.getParam("kP",                 kP_))                   { return false; }
-        if (!nodeHandle_.getParam("collisionThreshold", collisionThreshold_))   { return false; }
-        if (!nodeHandle_.getParam("visuMarker",         markerPublisherTopic_)) { return false; }
+        if (!nodeHandle_.getParam("huskyMovePublisherTopic",    subscriberTopic_))      { return false; }
+        if (!nodeHandle_.getParam("queueSize",                  queueSize_))            { return false; }
+        if (!nodeHandle_.getParam("velPublisherTopic",          cmdVelPublisherTopic_)) { return false; }
+        if (!nodeHandle_.getParam("kP",                         kP_))                   { return false; }
+        if (!nodeHandle_.getParam("collisionThreshold",         collisionThreshold_))   { return false; }
+        if (!nodeHandle_.getParam("visuMarker",                 markerPublisherTopic_)) { return false; }
         return true;
     }
 
@@ -49,24 +49,30 @@ namespace husky_highlevel_controller
         return readParameters();
     }
 
-    void HuskyMotionController::topicCallback(const husky_highlevel_controller::HuskyMotionControllerGoalConstPtr &goal)
+    void HuskyMotionController::topicCallback(const husky_highlevel_controller_msgs::HuskyMove& message)
     {
-        float minDistance;
-        int searchedIdx;
-        float min_angle = goal->min_x;     // angle
-        float min_distance = goal->min_y;  // range
+        // float min_angle = goal->min_x;     // angle
+        // float min_distance = goal->min_y;  // range
 
-        sensor_msgs::LaserScan message;
-        message.angle_min = min_angle;
-        message.range_min = min_distance;
+        // sensor_msgs::LaserScan message;
+        // message.angle_min = min_angle;
+        // message.range_min = min_distance;   
 
-        std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
+        this->FollowWall(message);
 
-        //ROS_INFO_STREAM("Minimum Distance of Laserscan: " << minDistance);   
-
-        navigateToPillar(message, searchedIdx);
-
-        publishMarkerRviz(message, searchedIdx);
+        /* 
+            //**************************
+            for pillar navigation
+            //**************************
+            float minDistance;
+            int searchedIdx;
+            std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
+            //ROS_INFO_STREAM("Minimum Distance of Laserscan: " << minDistance);
+            if(collisionThreshold_ < minDistance * kP_) {
+                navigateToPillar(message, searchedIdx);
+            } 
+            publishMarkerRviz(message, searchedIdx);
+        */
     }
 
     void HuskyMotionController::navigateToPillar(const sensor_msgs::LaserScan& message, int searchedIdx)
@@ -94,16 +100,60 @@ namespace husky_highlevel_controller
 
     }
 
-    void HuskyMotionController::preemptCB()
+    void HuskyMotionController::FollowWall(const husky_highlevel_controller_msgs::HuskyMove& huskyMove)
     {
-        ROS_WARN("Husky Motion Action: Preempted");
+        geometry_msgs::Twist cmdVel;
 
-        geometry_msgs::Twist zero_vel;
+        // ROS_INFO("Wall follower moveCmd: [%d]", cmdVel.moveCmd);
+        switch (huskyMove.moveCmd) 
+        {
+            case STRAIGHT:
+            // Find a wall: turn CW (right) while moving ahead
+            cmdVel.linear.x = 1.0;
+            cmdVel.angular.z = -0.15;
+            break;
 
-        cmdVelPublisher_.publish(zero_vel);
+            case TURN_LEFT:
+            // Turn left
+            cmdVel.linear.x = 0.0;
+            cmdVel.angular.z = 0.5;
+            break;
 
-        as_.setPreempted();
+            case FOLLOW_WALL:
+            // Follow the wall: keep moving straight ahead
+            cmdVel.angular.z = 0.0;
+            cmdVel.linear.x = 0.5;
+            break;
+
+            case STRAIGHT_SLOW:
+            // Move slow straight ahead
+            cmdVel.linear.x = 0.25;
+            cmdVel.angular.z = 0.0;
+            break;
+
+            case REVERSE_LEFT:
+            // Reverse turning left
+            cmdVel.linear.x = -0.5;
+            cmdVel.angular.z = 0.2; // pos. value equals turning C
+            break;
+
+            default:
+            // just stop
+            break;
+        }
+        cmdVelPublisher_.publish(cmdVel);
     }
+
+    // void HuskyMotionController::preemptCB()
+    // {
+    //     ROS_WARN("Husky Drive Action: Preempted");
+
+    //     geometry_msgs::Twist zero_vel;
+
+    //     cmdVelPublisher_.publish(zero_vel);
+
+    //     as_.setPreempted();
+    // }
 
     void HuskyMotionController::publishMarkerRviz(const sensor_msgs::LaserScan& message, int searchedIdx)
     {

@@ -5,5 +5,5 @@ velPublisherTopic: /cmd_vel
 kP: 1.0
 collisionThreshold: 1.0
 visuMarker: /visuMarker
-distanceToWall: 1.0
-wallLead: 2.0
+huskyMovePublisherTopic: /huskyMove
+distanceToWall: 1.5
