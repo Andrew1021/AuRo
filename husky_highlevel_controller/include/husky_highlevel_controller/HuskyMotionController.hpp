@@ -10,7 +10,7 @@
 
 #include <actionlib/server/simple_action_server.h>
 #include <std_msgs/ColorRGBA.h>
-#include <husky_highlevel_controller/husky_highlevel_controllerAction.h>
+#include <husky_highlevel_controller/HuskyMotionControllerAction.h>
 #include <husky_highlevel_controller/WallRoute.h>
 
 
@@ -35,7 +35,7 @@ namespace husky_highlevel_controller
              * 
              * @param goal goal
              */
-            void executeCB(const husky_highlevel_controller::HuskyDriveGoalConstPtr &goal);
+            void executeCB(const husky_highlevel_controller::HuskyMotionControllerGoalConstPtr &goal);
 
             /**
              * @brief Callback Method will be called on goal cancel.
@@ -54,7 +54,8 @@ namespace husky_highlevel_controller
             * ROS topic callback method.
             * @param message the received message.
             */
-            void topicCallback(const sensor_msgs::LaserScan& message);
+            //void topicCallback(const sensor_msgs::LaserScan& message);
+            void topicCallback(const husky_highlevel_controller::HuskyMotionControllerGoalConstPtr &goal);
 
             /*!
             * ROS publish method.
@@ -129,12 +130,12 @@ namespace husky_highlevel_controller
              * 
              * NOTE: NodeHandle instance must be created before this line. Otherwise strange error occurs.
              */
-            actionlib::SimpleActionServer<husky_highlevel_controller::HuskyDriveAction> as_;
+            actionlib::SimpleActionServer<husky_highlevel_controller::HuskyMotionControllerAction> as_;
 
             // HuskyDrive feedback
-            husky_highlevel_controller::HuskyDriveFeedback feedback_;
+            husky_highlevel_controller::HuskyMotionControllerFeedback feedback_;
 
             // HuskyDriver result
-            husky_highlevel_controller::HuskyDriveResult result_;
+            husky_highlevel_controller::HuskyMotionControllerResult result_;
     };
 }

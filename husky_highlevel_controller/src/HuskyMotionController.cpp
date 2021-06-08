@@ -8,7 +8,8 @@
 
 namespace husky_highlevel_controller
 {
-    HuskyMotionController::HuskyMotionController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), tfListener_(tfBuffer_)
+    HuskyMotionController::HuskyMotionController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), 
+    tfListener_(tfBuffer_), as_("husky_motion_action", boost::bind(&HuskyMotionController::topicCallback, this, _1), false)
     {
         if (!readParameters()) {
             ROS_ERROR("Could not read parameters.");
@@ -20,11 +21,16 @@ namespace husky_highlevel_controller
             cmdVelPublisher_= nodeHandle_.advertise<geometry_msgs::Twist>(cmdVelPublisherTopic_, queueSize_);
             markerPublisher_= nodeHandle_.advertise<visualization_msgs::Marker>("visualization_marker", 0);
             read_parameterservice_ = nodeHandle_.advertiseService("read_parameters", &HuskyMotionController::readParamCallback, this);
+            as_.registerPreemptCallback(boost::bind(&HuskyMotionController::preemptCB, this));
+            as_.start();
             ROS_INFO("Successfully launched node.");
         }
     }
 
-    HuskyMotionController::~HuskyMotionController() {}
+    HuskyMotionController::~HuskyMotionController() 
+    {
+        as_.shutdown();
+    }
 
     bool HuskyMotionController::readParameters()
     {
@@ -43,10 +49,16 @@ namespace husky_highlevel_controller
         return readParameters();
     }
 
-    void HuskyMotionController::topicCallback(const sensor_msgs::LaserScan& message)
+    void HuskyMotionController::topicCallback(const husky_highlevel_controller::HuskyMotionControllerGoalConstPtr &goal)
     {
         float minDistance;
         int searchedIdx;
+        float min_angle = goal->min_x;     // angle
+        float min_distance = goal->min_y;  // range
+
+        sensor_msgs::LaserScan message;
+        message.angle_min = min_angle;
+        message.range_min = min_distance;
 
         std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
 
@@ -79,6 +91,17 @@ namespace husky_highlevel_controller
 
         cmdVelPublisher_.publish(cmdVelParam);
 
+    }
+
+    void HuskyMotionController::preemptCB()
+    {
+        ROS_WARN("Husky Drive Action: Preempted");
+
+        geometry_msgs::Twist zero_vel;
+
+        cmdVelPublisher_.publish(zero_vel);
+
+        as_.setPreempted();
     }
 
     void HuskyMotionController::publishMarkerRviz(const sensor_msgs::LaserScan& message, int searchedIdx)

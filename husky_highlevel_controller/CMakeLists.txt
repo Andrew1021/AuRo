@@ -74,7 +74,7 @@ add_message_files(
 ## Generate actions in the 'action' folder
 add_action_files(
    FILES
-   husky_highlevel_controller.action
+   HuskyMotionController.action
 #   Action2.action
 )
 

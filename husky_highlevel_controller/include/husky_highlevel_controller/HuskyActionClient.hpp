@@ -2,7 +2,7 @@
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
 
-#include <husky_highlevel_controller/husky_highlevel_controllerAction.h>
+#include <husky_highlevel_controller/HuskyMotionControllerAction.h>
 
 namespace husky_highlevel_controller
 {
@@ -13,18 +13,18 @@ namespace husky_highlevel_controller
             * Constructor.
             * @param nodeHandle the ROS node handle.
             */
-            HuskyHighlevelControllerClient(ros::NodeHandle& nodeHandle);
+            HuskyActionClient(ros::NodeHandle& nodeHandle);
 
             /*!
             * Destructor.
             */
-            virtual ~HuskyHighlevelControllerClient();
+            virtual ~HuskyActionClient();
 
     private:
         // ROS node handle
         ros::NodeHandle nh_;
 
-        actionlib::SimpleActionClient<husky_highlevel_controller::HuskyDriveAction> ac_;
+        actionlib::SimpleActionClient<husky_highlevel_controller::HuskyMotionControllerAction> ac_;
 
         // ROS service to start drive server
         ros::ServiceServer start_drive_service_;
@@ -79,14 +79,14 @@ namespace husky_highlevel_controller
          * @param result Result
          */
         void serverDoneCB(const actionlib::SimpleClientGoalState &state,
-                          const husky_highlevel_controller::HuskyDriveResultConstPtr &result);
+                          const husky_highlevel_controller::HuskyMotionControllerActionResultConstPtr &result);
 
         /**
          * @brief Callback method will be called if a feedback from server is available.
          * 
          * @param feedback feedback.
          */
-        void serverFeedbackCB(const husky_highlevel_controller::HuskyDriveFeedbackConstPtr &feedback);
+        void serverFeedbackCB(const husky_highlevel_controller::HuskyMotionControllerActionFeedbackConstPtr &feedback);
 
     };
 }
