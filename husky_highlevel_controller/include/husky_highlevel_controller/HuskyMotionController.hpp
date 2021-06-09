@@ -7,10 +7,11 @@
 #include <tf2_ros/transform_listener.h>
 #include <visualization_msgs/Marker.h>
 #include "husky_highlevel_controller/Algorithm.hpp"
+#include "husky_highlevel_controller_msgs/HuskyMove.h"
 
-//#include <actionlib/server/simple_action_server.h>
+#include <actionlib/server/simple_action_server.h>
 //#include <std_msgs/ColorRGBA.h>
-//#include <husky_highlevel_controller/HuskyMotionControllerAction.h>
+#include <husky_highlevel_controller/HuskyMotionControllerAction.h>
 //#include <husky_highlevel_controller/WallRoute.h>
 
 
@@ -30,18 +31,18 @@ namespace husky_highlevel_controller
             */
             virtual ~HuskyMotionController();
 
-            // /**
-            //  * @brief Execute Callback on new Goal
-            //  * 
-            //  * @param goal goal
-            //  */
-            // void executeCB(const husky_highlevel_controller::HuskyMotionControllerGoalConstPtr &goal);
+            /**
+             * @brief Execute Callback on new Goal
+             * 
+             * @param goal goal
+             */
+            void executeCB(const husky_highlevel_controller::HuskyMotionControllerGoalConstPtr &goal);
 
-            // /**
-            //  * @brief Callback Method will be called on goal cancel.
-            //  * 
-            //  */
-            // void preemptCB();
+            /**
+             * @brief Callback Method will be called on goal cancel.
+             * 
+             */
+            void preemptCB();
 
         private:
             /*!
@@ -83,7 +84,7 @@ namespace husky_highlevel_controller
             * @param message the received message.
             * @param searchedIdx searched index
             */
-            void publishMarkerRviz(const sensor_msgs::LaserScan& message, int searchedIdx);          
+            void publishMarkerRviz(const sensor_msgs::LaserScan& message);          
 
             /* @brief Service Callback for re-reading parameters
              *        from the ROS parameter server
@@ -119,9 +120,17 @@ namespace husky_highlevel_controller
             //! ROS topic name to publish to.
             std::string markerPublisherTopic_;
 
+            husky_highlevel_controller_msgs::HuskyMove message_;
+
+            std::string scanPublisherTopic_;
+
+            ros::Subscriber subscriber_scan_;
+
             //! Control param of P-Controller
             float kP_;
             float collisionThreshold_;
+
+            float _distance;
 
             //! TF Buffer
             tf2_ros::Buffer tfBuffer_;
@@ -132,17 +141,17 @@ namespace husky_highlevel_controller
             //! Algorithm computation object.
             Algorithm algorithm_;
 
-            // /**
-            //  * @brief HuskyDrive Action Server
-            //  * 
-            //  * NOTE: NodeHandle instance must be created before this line. Otherwise strange error occurs.
-            //  */
-            // actionlib::SimpleActionServer<husky_highlevel_controller::HuskyMotionControllerAction> as_;
+            /**
+             * @brief HuskyDrive Action Server
+             * 
+             * NOTE: NodeHandle instance must be created before this line. Otherwise strange error occurs.
+             */
+            actionlib::SimpleActionServer<husky_highlevel_controller::HuskyMotionControllerAction> as_;
 
-            // // HuskyDrive feedback
-            // husky_highlevel_controller::HuskyMotionControllerFeedback feedback_;
+            // HuskyDrive feedback
+            husky_highlevel_controller::HuskyMotionControllerFeedback feedback_;
 
-            // // HuskyDriver result
-            // husky_highlevel_controller::HuskyMotionControllerResult result_;
+            // HuskyDriver result
+            husky_highlevel_controller::HuskyMotionControllerResult result_;
     };
 }

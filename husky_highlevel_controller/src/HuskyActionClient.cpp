@@ -8,7 +8,7 @@ namespace husky_highlevel_controller
     {
         if (!readParameters())
         {
-            ROS_ERROR("Coudl not read parameters!");
+            ROS_ERROR("Could not read parameters!");
             ros::requestShutdown();
         }
 
@@ -24,7 +24,7 @@ namespace husky_highlevel_controller
 
     bool HuskyActionClient::readParameters()
     {
-        if (!nh_.getParam("distanceToWall", _distanceToWall))
+        if (!nh_.getParam("out_of_Range", _out_of_Range))
             return false;
         return true;
     }
@@ -34,7 +34,7 @@ namespace husky_highlevel_controller
     {
         ROS_INFO("START DRIVE");
         husky_highlevel_controller::HuskyMotionControllerGoal goal;
-        goal.min_y = _distanceToWall;
+        goal.out_of_Range = _out_of_Range;
         ac_.sendGoal(goal, boost::bind(&HuskyActionClient::serverDoneCB, this, _1, _2),
                      boost::bind(&HuskyActionClient::serverActiveCB, this),
                      boost::bind(&HuskyActionClient::serverFeedbackCB, this, _1));
@@ -61,7 +61,7 @@ namespace husky_highlevel_controller
 
     void HuskyActionClient::serverFeedbackCB(const husky_highlevel_controller::HuskyMotionControllerFeedbackConstPtr &feedback)
     {
-        ROS_INFO("Server Feedback reached. Distance to pillar left: [%.2f]", feedback->y);
+        ROS_INFO("Server Feedback reached. Distance to wall left: [%.2f]", feedback->feedback_moveCmd);
     }
 
 }
