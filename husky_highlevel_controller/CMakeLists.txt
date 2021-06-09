@@ -17,7 +17,7 @@ find_package(
   tf
   tf2
   tf2_ros
-  # std_msgs
+  #std_msgs
   # genmsg
   # message_generation
   # message_runtime
@@ -72,19 +72,19 @@ find_package(
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#    FILES
-#    HuskyMotionController.action
+ add_action_files(
+    FILES
+    HuskyMotionController.action
 #   Action2.action
-#)
+)
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
+ generate_messages(
+   DEPENDENCIES
 #   std_msgs
-#   actionlib_msgs
-#   std_srvs
-# )
+   actionlib_msgs
+   std_srvs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##

@@ -59,11 +59,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <!-- Launch Joy Teleop Keyboard Node -->
   <!-- <node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py"/> -->
 
+  <node name="husky_sensor_evaluation_node" pkg="husky_highlevel_controller" type="husky_sensor_evaluation_node" output="screen">
+    <rosparam command="load" file="$(find husky_highlevel_controller)/config/config.yaml"/>
+  </node>
+
   <node name="husky_motion_controller_node" pkg="husky_highlevel_controller" type="husky_motion_controller_node" output="screen">
     <rosparam command="load" file="$(find husky_highlevel_controller)/config/config.yaml"/>
   </node>
 
-  <node name="husky_sensor_evaluation_node" pkg="husky_highlevel_controller" type="husky_sensor_evaluation_node" output="screen">
+  <node name="husky_action_client_node" pkg="husky_highlevel_controller" type="husky_action_client_node" output="screen">
     <rosparam command="load" file="$(find husky_highlevel_controller)/config/config.yaml"/>
   </node>
 

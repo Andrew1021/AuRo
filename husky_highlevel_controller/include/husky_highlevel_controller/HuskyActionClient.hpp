@@ -36,8 +36,7 @@ namespace husky_highlevel_controller
         ros::ServiceServer read_parameter_server_service_;
 
         // Min allowed distance and angle to wall
-        double _distanceToWall;
-        double min_y;
+        double _out_of_Range;
 
         bool readParameters();
 

@@ -9,7 +9,7 @@
 namespace husky_highlevel_controller
 {
     HuskyMotionController::HuskyMotionController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), 
-    tfListener_(tfBuffer_)//, as_("husky_motion_action", boost::bind(&HuskyMotionController::topicCallback, this, _1), false)
+    tfListener_(tfBuffer_), as_("husky_motion_action", boost::bind(&HuskyMotionController::executeCB, this, _1), false)
     {
         if (!readParameters()) {
             ROS_ERROR("Could not read parameters.");
@@ -18,11 +18,12 @@ namespace husky_highlevel_controller
         }
         else {
             subscriber_     = nodeHandle_.subscribe(subscriberTopic_, queueSize_, &HuskyMotionController::topicCallback, this);
+            subscriber_scan_ = nodeHandle_.subscribe(scanPublisherTopic_, queueSize_, &HuskyMotionController::publishMarkerRviz, this);
             cmdVelPublisher_= nodeHandle_.advertise<geometry_msgs::Twist>(cmdVelPublisherTopic_, queueSize_);
             markerPublisher_= nodeHandle_.advertise<visualization_msgs::Marker>("visualization_marker", 0);
             read_parameterservice_ = nodeHandle_.advertiseService("read_parameters", &HuskyMotionController::readParamCallback, this);
-            // as_.registerPreemptCallback(boost::bind(&HuskyMotionController::preemptCB, this));
-            // as_.start();
+            as_.registerPreemptCallback(boost::bind(&HuskyMotionController::preemptCB, this));
+            as_.start();
             ROS_INFO("Successfully launched node.");
         }
     }
@@ -35,6 +36,7 @@ namespace husky_highlevel_controller
     bool HuskyMotionController::readParameters()
     {
         if (!nodeHandle_.getParam("huskyMovePublisherTopic",    subscriberTopic_))      { return false; }
+        if (!nodeHandle_.getParam("scanPublisherTopic",         scanPublisherTopic_))   { return false; }
         if (!nodeHandle_.getParam("queueSize",                  queueSize_))            { return false; }
         if (!nodeHandle_.getParam("velPublisherTopic",          cmdVelPublisherTopic_)) { return false; }
         if (!nodeHandle_.getParam("kP",                         kP_))                   { return false; }
@@ -49,6 +51,15 @@ namespace husky_highlevel_controller
         return readParameters();
     }
 
+    void HuskyMotionController::executeCB(const husky_highlevel_controller::HuskyMotionControllerGoalConstPtr &goal)
+    {   
+        //husky_highlevel_controller_msgs::HuskyMove message;
+        //message.moveCmd = goal->moveCmd;
+        if (_distance < goal->out_of_Range)
+            this->FollowWall(message_);
+        as_.setSucceeded(result_);
+    }
+
     void HuskyMotionController::topicCallback(const husky_highlevel_controller_msgs::HuskyMove& message)
     {
         // float min_angle = goal->min_x;     // angle
@@ -58,7 +69,9 @@ namespace husky_highlevel_controller
         // message.angle_min = min_angle;
         // message.range_min = min_distance;   
 
-        this->FollowWall(message);
+        message_ = message;
+
+        //this->FollowWall(message);
 
         /* 
             //**************************
@@ -103,7 +116,7 @@ namespace husky_highlevel_controller
     void HuskyMotionController::FollowWall(const husky_highlevel_controller_msgs::HuskyMove& huskyMove)
     {
         geometry_msgs::Twist cmdVel;
-
+        
         // ROS_INFO("Wall follower moveCmd: [%d]", cmdVel.moveCmd);
         switch (huskyMove.moveCmd) 
         {
@@ -111,52 +124,63 @@ namespace husky_highlevel_controller
             // Find a wall: turn CW (right) while moving ahead
             cmdVel.linear.x = 1.0;
             cmdVel.angular.z = -0.15;
+            as_.publishFeedback(feedback_);
             break;
 
             case TURN_LEFT:
             // Turn left
             cmdVel.linear.x = 0.0;
             cmdVel.angular.z = 0.5;
+            as_.publishFeedback(feedback_);
             break;
 
             case FOLLOW_WALL:
             // Follow the wall: keep moving straight ahead
             cmdVel.angular.z = 0.0;
             cmdVel.linear.x = 0.5;
+            as_.publishFeedback(feedback_);
             break;
 
             case STRAIGHT_SLOW:
             // Move slow straight ahead
             cmdVel.linear.x = 0.25;
             cmdVel.angular.z = 0.0;
+            as_.publishFeedback(feedback_);
             break;
 
             case REVERSE_LEFT:
             // Reverse turning left
             cmdVel.linear.x = -0.5;
             cmdVel.angular.z = 0.2; // pos. value equals turning C
+            as_.publishFeedback(feedback_);
             break;
 
             default:
             // just stop
+            as_.publishFeedback(feedback_);
             break;
         }
         cmdVelPublisher_.publish(cmdVel);
     }
 
-    // void HuskyMotionController::preemptCB()
-    // {
-    //     ROS_WARN("Husky Drive Action: Preempted");
-
-    //     geometry_msgs::Twist zero_vel;
-
-    //     cmdVelPublisher_.publish(zero_vel);
-
-    //     as_.setPreempted();
-    // }
-
-    void HuskyMotionController::publishMarkerRviz(const sensor_msgs::LaserScan& message, int searchedIdx)
+    void HuskyMotionController::preemptCB()
     {
+         ROS_WARN("Husky Motion Action: Preempted");
+
+         geometry_msgs::Twist zero_vel;
+
+         cmdVelPublisher_.publish(zero_vel);
+
+         as_.setPreempted();
+     }
+
+    void HuskyMotionController::publishMarkerRviz(const sensor_msgs::LaserScan& message)
+    {   
+        float minDistance;
+        int searchedIdx;
+        std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
+        _distance = minDistance;
+
         visualization_msgs::Marker marker_baselaser;
         visualization_msgs::Marker marker_odom;
         geometry_msgs::Pose pose;
