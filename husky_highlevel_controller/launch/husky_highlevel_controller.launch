@@ -72,7 +72,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   </node>
 
   <!-- RViz -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find husky_highlevel_controller)/config/config.rviz" required="false"/>
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find husky_highlevel_controller)/config/config.rviz" required="false"/> -->
 
   
 </launch>

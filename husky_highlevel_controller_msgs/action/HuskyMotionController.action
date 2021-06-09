@@ -1,11 +1,8 @@
 # Define the goal
-# min Pose in x- & y-coordiantes
-float64 min_x
-float64 min_y
+bool moveEnabled
 ---
 # Define the result
+bool success
 ---
 # Define a feedback message
-# Pose in x- & y-coordiantes
-float64 x
-float64 y
+int64 executedMoveCmd

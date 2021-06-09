@@ -10,9 +10,7 @@
 #include "husky_highlevel_controller_msgs/HuskyMove.h"
 
 #include <actionlib/server/simple_action_server.h>
-//#include <std_msgs/ColorRGBA.h>
-#include <husky_highlevel_controller/HuskyMotionControllerAction.h>
-//#include <husky_highlevel_controller/WallRoute.h>
+#include <husky_highlevel_controller_msgs/HuskyMotionControllerAction.h>
 
 
 namespace husky_highlevel_controller
@@ -36,7 +34,7 @@ namespace husky_highlevel_controller
              * 
              * @param goal goal
              */
-            void executeCB(const husky_highlevel_controller::HuskyMotionControllerGoalConstPtr &goal);
+            void executeCB(const husky_highlevel_controller_msgs::HuskyMotionControllerGoalConstPtr &goal);
 
             /**
              * @brief Callback Method will be called on goal cancel.
@@ -55,7 +53,6 @@ namespace husky_highlevel_controller
             * ROS topic callback method.
             * @param message the received message.
             */
-            //void topicCallback(const sensor_msgs::LaserScan& message);
             void topicCallback(const husky_highlevel_controller_msgs::HuskyMove& message);
 
             /*!
@@ -122,15 +119,9 @@ namespace husky_highlevel_controller
 
             husky_highlevel_controller_msgs::HuskyMove message_;
 
-            std::string scanPublisherTopic_;
-
-            ros::Subscriber subscriber_scan_;
-
             //! Control param of P-Controller
             float kP_;
             float collisionThreshold_;
-
-            float _distance;
 
             //! TF Buffer
             tf2_ros::Buffer tfBuffer_;
@@ -141,17 +132,20 @@ namespace husky_highlevel_controller
             //! Algorithm computation object.
             Algorithm algorithm_;
 
+            // Timer for succeeded wall following
+            ros::Time timerWallFollowing;
+
             /**
              * @brief HuskyDrive Action Server
              * 
              * NOTE: NodeHandle instance must be created before this line. Otherwise strange error occurs.
              */
-            actionlib::SimpleActionServer<husky_highlevel_controller::HuskyMotionControllerAction> as_;
+            actionlib::SimpleActionServer<husky_highlevel_controller_msgs::HuskyMotionControllerAction> as_;
 
             // HuskyDrive feedback
-            husky_highlevel_controller::HuskyMotionControllerFeedback feedback_;
+            husky_highlevel_controller_msgs::HuskyMotionControllerFeedback feedback_;
 
             // HuskyDriver result
-            husky_highlevel_controller::HuskyMotionControllerResult result_;
+            husky_highlevel_controller_msgs::HuskyMotionControllerResult result_;
     };
 }

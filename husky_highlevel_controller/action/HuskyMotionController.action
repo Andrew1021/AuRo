@@ -1,7 +1,0 @@
-# Define the goal
-int64 out_of_Range
----
-# Define the result
----
-# Define a feedback message
-int64 feedback_out_of_Range

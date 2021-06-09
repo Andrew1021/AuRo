@@ -6,14 +6,14 @@
 #include <geometry_msgs/Twist.h>
 namespace husky_highlevel_controller 
 {
-    typedef enum _ROBOT_MOVEMENT {
+    enum _ROBOT_MOVEMENT {
         STRAIGHT = 0,
         TURN_LEFT,
         FOLLOW_WALL,
         STRAIGHT_SLOW,
         REVERSE_LEFT,
         STOP
-    } ROBOT_MOVEMENT;       
+    };        
     class Algorithm
     {
         public:

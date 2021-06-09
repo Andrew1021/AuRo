@@ -181,11 +181,11 @@ namespace husky_highlevel_controller
                 ROS_ERROR("Ray index not found in range size");
             }
         } // end of for
-        ROS_INFO("Closest object to the far right: [%f]: ", minDis[0]);
-        ROS_INFO("Closest object to the front-right: [%f]: ", minDis[1]);
-        ROS_INFO("Closest object to the front: [%f]: ", minDis[2]);
-        ROS_INFO("Closest object to the front-left: [%f]: ", minDis[3]);
-        ROS_INFO("Closest object to the far left: [%f]: ", minDis[4]);
+        // ROS_INFO("Closest object to the far right: [%f]: ", minDis[0]);
+        // ROS_INFO("Closest object to the front-right: [%f]: ", minDis[1]);
+        // ROS_INFO("Closest object to the front: [%f]: ", minDis[2]);
+        // ROS_INFO("Closest object to the front-left: [%f]: ", minDis[3]);
+        // ROS_INFO("Closest object to the far left: [%f]: ", minDis[4]);
 
 
         // fine tune distance (mt) used to consider a region as blocked by an obstacle

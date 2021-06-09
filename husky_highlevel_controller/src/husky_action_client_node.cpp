@@ -1,5 +1,4 @@
 #include <ros/ros.h>
-
 #include <husky_highlevel_controller/HuskyActionClient.hpp>
 
 int main(int argc, char **argv)
@@ -9,7 +8,7 @@ int main(int argc, char **argv)
 
     husky_highlevel_controller::HuskyActionClient HuskyActionClient(nh);
 
-    ros::AsyncSpinner spinner(3);
+    ros::AsyncSpinner spinner(1);
     spinner.start();
 
     ros::waitForShutdown();

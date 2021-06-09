@@ -10,18 +10,18 @@ namespace husky_highlevel_controller
         if (!readParameters()) {
             ROS_ERROR("Could not read parameters.");
             ros::requestShutdown();
-            ROS_INFO("Cancelling scan node.");
+            ROS_INFO("Cancelling HuskySensorEvaluation node.");
         }
         else {
             subscriber_             = nodeHandle_.subscribe(scanTopic_, queueSize_, &HuskySensorEvaluation::topicCallback, this);
             scanPublisher_          = nodeHandle_.advertise<sensor_msgs::LaserScan>(scanPublisherTopic_, queueSize_);
             huskyMovePublisher_     = nodeHandle_.advertise<husky_highlevel_controller_msgs::HuskyMove>(huskyMovePublisherTopic_, queueSize_);
             read_parameterservice_  = nodeHandle_.advertiseService("read_parameters", &HuskySensorEvaluation::readParamCallback, this);
-            ROS_INFO("Successfully launched node.");
+            ROS_INFO("Successfully launched HuskySensorEvaluation node.");
         }
     }
 
-    HuskySensorEvaluation::~HuskySensorEvaluation() {}
+    HuskySensorEvaluation::~HuskySensorEvaluation() {ROS_WARN("action server tot");}
 
     bool HuskySensorEvaluation::readParameters()
     {
@@ -46,7 +46,7 @@ namespace husky_highlevel_controller
 
         std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
 
-        ROS_INFO_STREAM("Minimum Distance of Laserscan: " << minDistance);   
+        //ROS_INFO_STREAM("Minimum Distance of Laserscan: " << minDistance);   
         
         publishRecreatedScan(message, searchedIdx);
         publishHuskyMove(message);

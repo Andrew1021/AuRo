@@ -14,29 +14,30 @@ namespace husky_highlevel_controller
         if (!readParameters()) {
             ROS_ERROR("Could not read parameters.");
             ros::requestShutdown();
-            ROS_INFO("Cancelling scan node.");
+            ROS_INFO("Cancelling HuskyMotionController node.");
         }
         else {
             subscriber_     = nodeHandle_.subscribe(subscriberTopic_, queueSize_, &HuskyMotionController::topicCallback, this);
-            subscriber_scan_ = nodeHandle_.subscribe(scanPublisherTopic_, queueSize_, &HuskyMotionController::publishMarkerRviz, this);
             cmdVelPublisher_= nodeHandle_.advertise<geometry_msgs::Twist>(cmdVelPublisherTopic_, queueSize_);
             markerPublisher_= nodeHandle_.advertise<visualization_msgs::Marker>("visualization_marker", 0);
             read_parameterservice_ = nodeHandle_.advertiseService("read_parameters", &HuskyMotionController::readParamCallback, this);
+
             as_.registerPreemptCallback(boost::bind(&HuskyMotionController::preemptCB, this));
             as_.start();
-            ROS_INFO("Successfully launched node.");
+
+            timerWallFollowing = ros::Time::now();
+            ROS_INFO("Successfully launched HuskyMotionController node.");
         }
     }
 
     HuskyMotionController::~HuskyMotionController() 
     {
-        // as_.shutdown();
+        as_.shutdown();
     }
 
     bool HuskyMotionController::readParameters()
     {
         if (!nodeHandle_.getParam("huskyMovePublisherTopic",    subscriberTopic_))      { return false; }
-        if (!nodeHandle_.getParam("scanPublisherTopic",         scanPublisherTopic_))   { return false; }
         if (!nodeHandle_.getParam("queueSize",                  queueSize_))            { return false; }
         if (!nodeHandle_.getParam("velPublisherTopic",          cmdVelPublisherTopic_)) { return false; }
         if (!nodeHandle_.getParam("kP",                         kP_))                   { return false; }
@@ -51,13 +52,24 @@ namespace husky_highlevel_controller
         return readParameters();
     }
 
-    void HuskyMotionController::executeCB(const husky_highlevel_controller::HuskyMotionControllerGoalConstPtr &goal)
+    void HuskyMotionController::executeCB(const husky_highlevel_controller_msgs::HuskyMotionControllerGoalConstPtr &goal)
     {   
-        //husky_highlevel_controller_msgs::HuskyMove message;
-        //message.moveCmd = goal->moveCmd;
-        if (_distance < goal->out_of_Range)
+        if(goal->moveEnabled) {
+            ROS_WARN("moveEnabled");
             this->FollowWall(message_);
-        as_.setSucceeded(result_);
+            feedback_.executedMoveCmd = message_.moveCmd;
+            as_.publishFeedback(feedback_);
+        }
+        else{
+            ROS_WARN("preemptCB");
+            preemptCB();
+        }
+            
+        if(timerWallFollowing.toSec() > 3600.0) // 1h for the wall following
+        {
+            result_.success = true;
+            as_.setSucceeded(result_);
+        }
     }
 
     void HuskyMotionController::topicCallback(const husky_highlevel_controller_msgs::HuskyMove& message)
@@ -67,8 +79,7 @@ namespace husky_highlevel_controller
 
         // sensor_msgs::LaserScan message;
         // message.angle_min = min_angle;
-        // message.range_min = min_distance;   
-
+        // message.range_min = min_distance; 
         message_ = message;
 
         //this->FollowWall(message);
@@ -124,40 +135,34 @@ namespace husky_highlevel_controller
             // Find a wall: turn CW (right) while moving ahead
             cmdVel.linear.x = 1.0;
             cmdVel.angular.z = -0.15;
-            as_.publishFeedback(feedback_);
             break;
 
             case TURN_LEFT:
             // Turn left
             cmdVel.linear.x = 0.0;
             cmdVel.angular.z = 0.5;
-            as_.publishFeedback(feedback_);
             break;
 
             case FOLLOW_WALL:
             // Follow the wall: keep moving straight ahead
             cmdVel.angular.z = 0.0;
             cmdVel.linear.x = 0.5;
-            as_.publishFeedback(feedback_);
             break;
 
             case STRAIGHT_SLOW:
             // Move slow straight ahead
             cmdVel.linear.x = 0.25;
             cmdVel.angular.z = 0.0;
-            as_.publishFeedback(feedback_);
             break;
 
             case REVERSE_LEFT:
             // Reverse turning left
             cmdVel.linear.x = -0.5;
             cmdVel.angular.z = 0.2; // pos. value equals turning C
-            as_.publishFeedback(feedback_);
             break;
 
             default:
             // just stop
-            as_.publishFeedback(feedback_);
             break;
         }
         cmdVelPublisher_.publish(cmdVel);
@@ -179,7 +184,6 @@ namespace husky_highlevel_controller
         float minDistance;
         int searchedIdx;
         std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
-        _distance = minDistance;
 
         visualization_msgs::Marker marker_baselaser;
         visualization_msgs::Marker marker_odom;

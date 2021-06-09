@@ -7,4 +7,4 @@ collisionThreshold: 1.0
 visuMarker: /visuMarker
 huskyMovePublisherTopic: /huskyMove
 distanceToWall: 1.5
-out_of_Range: 1000000
+acCancelTopic: /acCancelTopic

@@ -17,16 +17,13 @@ find_package(
   tf
   tf2
   tf2_ros
-  #std_msgs
-  # genmsg
-  # message_generation
-  # message_runtime
   std_srvs
+  actionlib
   husky_highlevel_controller_msgs
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -72,19 +69,19 @@ find_package(
 # )
 
 ## Generate actions in the 'action' folder
- add_action_files(
-    FILES
-    HuskyMotionController.action
-#   Action2.action
-)
+#  add_action_files(
+#     FILES
+#     HuskyMotionController.action
+# #   Action2.action
+#)
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-#   std_msgs
-   actionlib_msgs
-   std_srvs
- )
+#  generate_messages(
+#    DEPENDENCIES
+# #   std_msgs
+#    actionlib_msgs
+#    std_srvs
+#  )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -129,7 +126,8 @@ catkin_package(
     tf
     tf2
     std_srvs
-    #husky_highlevel_controller_msgs
+    actionlib
+    husky_highlevel_controller_msgs
 #  DEPENDS system_lib
 )
 
@@ -170,6 +168,12 @@ add_executable(husky_sensor_evaluation_node
   src/Algorithm.cpp
 )
 
+add_executable(husky_action_client_node
+  src/husky_action_client_node.cpp 
+  src/HuskyActionClient.cpp
+  src/Algorithm.cpp
+)
+
 #target_compile_features(husky_highlevel_controller_client INTERFACE cxx_std_11)
 #target_compile_features(husky_highlevel_controller_server INTERFACE cxx_std_11)
 
@@ -190,6 +194,8 @@ add_executable(husky_sensor_evaluation_node
 target_link_libraries(husky_motion_controller_node ${catkin_LIBRARIES})
 
 target_link_libraries(husky_sensor_evaluation_node ${catkin_LIBRARIES})
+
+target_link_libraries(husky_action_client_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

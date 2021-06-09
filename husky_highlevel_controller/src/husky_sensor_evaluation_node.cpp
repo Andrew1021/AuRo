@@ -9,7 +9,7 @@ int main(int argc, char ** argv)
     
     husky_highlevel_controller::HuskySensorEvaluation HuskySensorEvaluation(nodeHandle);
     
-    ros::AsyncSpinner spinner(1);
+    ros::AsyncSpinner spinner(3);
     spinner.start();
 
     ros::waitForShutdown();
