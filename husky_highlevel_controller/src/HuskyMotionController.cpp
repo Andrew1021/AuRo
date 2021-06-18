@@ -81,6 +81,7 @@ namespace husky_highlevel_controller
         // message.angle_min = min_angle;
         // message.range_min = min_distance; 
         message_ = message;
+        this->FollowWall(message_);
 
         //this->FollowWall(message);
 

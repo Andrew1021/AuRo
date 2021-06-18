@@ -47,7 +47,7 @@ namespace husky_highlevel_controller
         std::tie(minDistance, searchedIdx) = algorithm_.GetMinDistance(message);
 
         //ROS_INFO_STREAM("Minimum Distance of Laserscan: " << minDistance);   
-        
+        nodeHandle_.getParam("distanceToWall", distanceToWall_);
         publishRecreatedScan(message, searchedIdx);
         publishHuskyMove(message);
     }

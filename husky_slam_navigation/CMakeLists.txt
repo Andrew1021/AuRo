@@ -9,17 +9,7 @@ project(husky_slam_navigation)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  sensor_msgs
-  std_msgs
-  geometry_msgs
   roslint
-  visualization_msgs
-  tf
-  tf2
-  tf2_ros
-  std_srvs
-  actionlib
-  husky_highlevel_controller_msgs
   )
 
 ## System dependencies are found with CMake's conventions

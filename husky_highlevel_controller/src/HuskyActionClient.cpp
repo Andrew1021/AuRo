@@ -16,7 +16,7 @@ namespace husky_highlevel_controller
         start_drive_service_ = nh_.advertiseService("start_drive", &HuskyActionClient::startDriveCB, this);
         stop_drive_service_  = nh_.advertiseService("stop_drive", &HuskyActionClient::stopDriveCB, this);
 
-        ROS_WARN("Started husky_action_client!");
+        ROS_INFO("Successfully launched HuskyActionClient node.");
     }
 
     HuskyActionClient::~HuskyActionClient()
