@@ -147,5 +147,6 @@ namespace husky_highlevel_controller
 
             // HuskyDriver result
             husky_highlevel_controller_msgs::HuskyMotionControllerResult result_;
+
     };
 }

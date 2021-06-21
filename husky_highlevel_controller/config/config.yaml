@@ -6,5 +6,5 @@ kP: 1.0
 collisionThreshold: 1.0
 visuMarker: /visuMarker
 huskyMovePublisherTopic: /huskyMove
-distanceToWall: 1.75
+distanceToWall: 1.1
 acCancelTopic: /acCancelTopic

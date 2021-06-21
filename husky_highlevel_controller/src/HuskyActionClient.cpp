@@ -12,15 +12,19 @@ namespace husky_highlevel_controller
             ROS_ERROR("Cancelling HuskyMotionController node.");
         }
 
-        subscriber_          = nh_.subscribe(cancelTopic_, queueSize_, &HuskyActionClient::topicCallback, this);
-        start_drive_service_ = nh_.advertiseService("start_drive", &HuskyActionClient::startDriveCB, this);
-        stop_drive_service_  = nh_.advertiseService("stop_drive", &HuskyActionClient::stopDriveCB, this);
+        ac_.waitForServer();
+        ac_move_cancel_ = false;
+        prev_.moveCmd   = STOP;
+        subscriber_     = nh_.subscribe(cancelTopic_, queueSize_, &HuskyActionClient::topicCallback, this);
+
+        HuskyActionClient::startDriveCB();
 
         ROS_INFO("Successfully launched HuskyActionClient node.");
     }
 
     HuskyActionClient::~HuskyActionClient()
     {
+        HuskyActionClient::stopDriveCB();
     }
 
     bool HuskyActionClient::readParameters()
@@ -32,25 +36,21 @@ namespace husky_highlevel_controller
     void HuskyActionClient::topicCallback(const husky_highlevel_controller_msgs::Cancel& msg) 
     {
         ac_move_cancel_ = msg.cancel;
+        startDriveCB();
     }
 
-    bool HuskyActionClient::startDriveCB(std_srvs::Empty::Request &req,
-                                                      std_srvs::Empty::Response &res)
+    void HuskyActionClient::startDriveCB()
     {
-        ROS_INFO("START DRIVE");
         husky_highlevel_controller_msgs::HuskyMotionControllerGoal goal;
         goal.moveEnabled = !ac_move_cancel_;
         ac_.sendGoal(goal, boost::bind(&HuskyActionClient::serverDoneCB, this, _1, _2),
                      boost::bind(&HuskyActionClient::serverActiveCB, this),
                      boost::bind(&HuskyActionClient::serverFeedbackCB, this, _1));
-        return true;
     }
 
-    bool HuskyActionClient::stopDriveCB(std_srvs::Empty::Request &req,
-                                                     std_srvs::Empty::Response &res)
+    void HuskyActionClient::stopDriveCB()
     {
         ac_.cancelAllGoals();
-        return true;
     }
 
     void HuskyActionClient::serverActiveCB()
@@ -74,25 +74,29 @@ namespace husky_highlevel_controller
             break;
 
             case TURN_LEFT:
-            cmd = "STRAIGHT";
+            cmd = "TURN_LEFT";
             break;
 
             case FOLLOW_WALL:
-            cmd = "STRAIGHT";
+            cmd = "FOLLOW_WALL";
             break;
 
             case STRAIGHT_SLOW:
-            cmd = "STRAIGHT";
+            cmd = "STRAIGHT_SLOW";
             break;
 
             case REVERSE_LEFT:
-            cmd = "STRAIGHT";
+            cmd = "REVERSE_LEFT";
             break;
 
             default:
             cmd = "STOP";
             break;
         }
-        ROS_INFO_STREAM("Server Feedback received. Excuted Husky Move Command: " << cmd);
+
+        if(feedback->executedMoveCmd != prev_.moveCmd) {
+            ROS_INFO_STREAM("Server Feedback received. Excuted Husky Move Command: " << cmd);
+            prev_.moveCmd = feedback->executedMoveCmd;
+        }
     }
 }

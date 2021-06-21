@@ -54,21 +54,21 @@ namespace husky_highlevel_controller
 
     void HuskyMotionController::executeCB(const husky_highlevel_controller_msgs::HuskyMotionControllerGoalConstPtr &goal)
     {   
-        if(goal->moveEnabled) {
-            ROS_WARN("moveEnabled");
-            this->FollowWall(message_);
-            feedback_.executedMoveCmd = message_.moveCmd;
-            as_.publishFeedback(feedback_);
-        }
-        else{
-            ROS_WARN("preemptCB");
-            preemptCB();
-        }
-            
         if(timerWallFollowing.toSec() > 3600.0) // 1h for the wall following
         {
             result_.success = true;
             as_.setSucceeded(result_);
+        }
+
+        if(!goal->moveEnabled){
+            ROS_INFO("preemptCB");
+            preemptCB();
+        }
+
+        while(goal->moveEnabled) {
+            this->FollowWall(message_);
+            feedback_.executedMoveCmd = message_.moveCmd;
+            as_.publishFeedback(feedback_);
         }
     }
 
@@ -81,7 +81,7 @@ namespace husky_highlevel_controller
         // message.angle_min = min_angle;
         // message.range_min = min_distance; 
         message_ = message;
-        this->FollowWall(message_);
+        //this->FollowWall(message_);
 
         //this->FollowWall(message);
 
@@ -134,32 +134,32 @@ namespace husky_highlevel_controller
         {
             case STRAIGHT:
             // Find a wall: turn CW (right) while moving ahead
-            cmdVel.linear.x = 1.0;
-            cmdVel.angular.z = -0.15;
+            cmdVel.linear.x = 0.7;
+            cmdVel.angular.z = -0.7;
             break;
 
             case TURN_LEFT:
             // Turn left
             cmdVel.linear.x = 0.0;
-            cmdVel.angular.z = 0.5;
+            cmdVel.angular.z = 0.4;
             break;
 
             case FOLLOW_WALL:
             // Follow the wall: keep moving straight ahead
             cmdVel.angular.z = 0.0;
-            cmdVel.linear.x = 0.5;
+            cmdVel.linear.x = 0.3;
             break;
 
             case STRAIGHT_SLOW:
             // Move slow straight ahead
-            cmdVel.linear.x = 0.25;
+            cmdVel.linear.x = 0.4;
             cmdVel.angular.z = 0.0;
             break;
 
             case REVERSE_LEFT:
             // Reverse turning left
-            cmdVel.linear.x = -0.5;
-            cmdVel.angular.z = 0.2; // pos. value equals turning C
+            cmdVel.linear.x = -0.8;
+            cmdVel.angular.z = 0.5; // pos. value equals turning C
             break;
 
             default:

@@ -4,6 +4,7 @@
 
 #include "husky_highlevel_controller_msgs/HuskyMotionControllerAction.h"
 #include "husky_highlevel_controller_msgs/Cancel.h"
+#include "husky_highlevel_controller_msgs/HuskyMove.h"
 
 namespace husky_highlevel_controller
 {
@@ -27,17 +28,13 @@ namespace husky_highlevel_controller
 
             actionlib::SimpleActionClient<husky_highlevel_controller_msgs::HuskyMotionControllerAction> ac_;
 
-            // ROS service to start drive server
-            ros::ServiceServer start_drive_service_;
-
-            // ROS service to stop drive server
-            ros::ServiceServer stop_drive_service_;
-
             // ROS Service to re-read parameters
             ros::ServiceServer read_parameter_server_service_;
 
+            husky_highlevel_controller_msgs::HuskyMove prev_;
+
             // cancels goal
-            bool ac_move_cancel_ = false;
+            bool ac_move_cancel_;
 
             //! ROS SUBSCRIBER
             //! ROS topic subscriber.
@@ -60,25 +57,13 @@ namespace husky_highlevel_controller
 
             /**
              * @brief Service Callback to start drive.
-             * 
-             * @param req Empty request
-             * @param res Empty response
-             * @return true service finished successfully 
-             * @return false service finished unsuccessfully
              */
-            bool startDriveCB(std_srvs::Empty::Request &req,
-                            std_srvs::Empty::Response &res);
+            void startDriveCB();
 
             /**
              * @brief Service Callback to stop drive.
-             * 
-             * @param req Empty request
-             * @param res Empty response
-             * @return true service finished successfully 
-             * @return false service finished unsuccessfully
              */
-            bool stopDriveCB(std_srvs::Empty::Request &req,
-                            std_srvs::Empty::Response &res);
+            void stopDriveCB();
 
             /**
              * @brief Server Active Callback Method.
