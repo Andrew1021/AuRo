@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-18.04
     container: ros:melodic-ros-base
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           vcs-repo-file-url: "https://github.com/Andrew1021/AuRo/raw/main/AuRo.repos"
       - name: Install catkin & package dependencies
